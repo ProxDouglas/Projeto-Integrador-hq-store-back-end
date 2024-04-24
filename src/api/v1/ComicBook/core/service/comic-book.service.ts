@@ -24,26 +24,43 @@ export default class ComicBookService {
         return this.comicBookRepository.save(comicBookDto);
     }
 
-    // public async updateComicBook(
-    //   id: number,
-    //   createComicBookDto: CreateComicBookDto,
-    // ): Promise<CreateComicBookDto> {
-    //   const comicBook = await this.comicBookRepository.findOneBy({ id });
+    public async update(
+        id: number,
+        createComicBookDto: ComicBookDto,
+    ): Promise<ComicBookDto> {
+        return await this.comicBookRepository
+            .findOneBy({ id })
+            .then((comicBook) => {
+                if (createComicBookDto.name)
+                    comicBook.name = createComicBookDto.name;
 
-    //   if (createComicBookDto.name) comicBook.name = createComicBookDto.name;
+                if (createComicBookDto.year_publication)
+                    comicBook.year_publication =
+                        createComicBookDto.year_publication;
 
-    //   if (createComicBookDto.name) comicBook.email = createComicBookDto.email;
+                if (createComicBookDto.month_publication)
+                    comicBook.month_publication =
+                        createComicBookDto.month_publication;
 
-    //   if (createComicBookDto.name) comicBook.phone = createComicBookDto.phone;
+                if (createComicBookDto.number_pages)
+                    comicBook.number_pages = createComicBookDto.number_pages;
 
-    //   if (createComicBookDto.name) comicBook.cpf = createComicBookDto.cpf;
+                if (createComicBookDto.publisher)
+                    comicBook.publisher = createComicBookDto.publisher;
 
-    //   if (createComicBookDto.name) comicBook.password = createComicBookDto.password;
+                if (createComicBookDto.age_rating)
+                    comicBook.age_rating = createComicBookDto.age_rating;
 
-    //   return createComicBookDto;
-    // }
+                if (createComicBookDto.price)
+                    comicBook.price = createComicBookDto.price;
+
+                return this.comicBookRepository.save(comicBook);
+            });
+    }
 
     public async delete(id: number) {
-        this.comicBookRepository.delete({ id });
+        this.comicBookRepository
+            .findOneBy({ id })
+            .then((comicBook) => this.comicBookRepository.delete(comicBook));
     }
 }

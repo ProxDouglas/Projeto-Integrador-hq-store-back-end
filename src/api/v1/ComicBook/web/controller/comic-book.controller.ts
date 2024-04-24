@@ -38,6 +38,15 @@ export default class ComicBookController {
         return this.comicBookService.create(comicBookDto);
     }
 
+    @Put(':id')
+    update(
+        @Param('id', ParseIntPipe)
+        id: number,
+        @Body() comicBookDto: ComicBookDto,
+    ): Promise<ComicBookDto> {
+        return this.comicBookService.update(id, comicBookDto);
+    }
+
     @Delete(':id')
     delete(@Param('id', ParseIntPipe) id: number): Promise<ComicBookDto> {
         return this.comicBookService.getById(id);
