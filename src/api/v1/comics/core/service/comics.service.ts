@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import Comics from '../entity/comics.entity';
 import ComicsDto from '../../web/dto/comics.dto';
 import ComicsNotFound from '../../web/exception/comics-not-found';
+import ComicsImage from 'src/api/v1/comics-image/core/entity/comic-image.entity';
 
 @Injectable()
 export default class ComicsService {
@@ -18,14 +19,6 @@ export default class ComicsService {
     }
 
     async getById(id: number): Promise<Comics> {
-        // const t = this.comicsRepository.find({
-        //     relations: {
-        //         images: true,
-        //     },
-        //     where: {
-        //         id: id,
-        //     },
-        // });
         return this.comicsRepository.findOneByOrFail({ id }).catch(() => {
             throw new ComicsNotFound(id);
         });

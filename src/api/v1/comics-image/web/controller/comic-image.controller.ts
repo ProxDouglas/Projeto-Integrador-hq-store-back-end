@@ -7,9 +7,6 @@ import {
     ParseIntPipe,
     UseInterceptors,
     UploadedFiles,
-    ParseFilePipe,
-    MaxFileSizeValidator,
-    FileTypeValidator,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import ComicsImageService from '../../core/service/comic-image.service';
