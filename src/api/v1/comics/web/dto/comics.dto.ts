@@ -1,6 +1,6 @@
 import { IsInt, Min, Max, Length, IsNotEmpty, IsNumber } from 'class-validator';
 
-export default class ComicBookDto {
+export default class ComicsDto {
     id: number;
 
     @Length(2, 255)
@@ -27,7 +27,7 @@ export default class ComicBookDto {
 
     @Length(2, 255)
     @IsNotEmpty()
-    publisher: number;
+    publisher: string;
 
     @IsInt()
     @Min(0)
@@ -39,6 +39,6 @@ export default class ComicBookDto {
     @IsNotEmpty()
     price: number;
 
-    // @OneToMany(() => ComicsImage, (ComicsImage) => ComicsImage.ComicBook)
+    // @OneToMany(() => ComicsImage, (ComicsImage) => ComicsImage.Comics)
     // images: ComicsImage[];
 }

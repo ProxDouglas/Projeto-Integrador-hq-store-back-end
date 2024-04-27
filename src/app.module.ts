@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ComicBookModule } from './api/v1/ComicBook/comic-book.module';
+import { readdirSync } from 'fs';
+import { join } from 'path';
+import ComicsModule from './api/v1/comics/comics.module';
+import ComicsImageModule from './api/v1/comics-image/comic-image.module';
 
-
+// const modulesDir = join(__dirname, 'api/v1');
 @Module({
     imports: [
         ConfigModule.forRoot({
@@ -20,9 +23,29 @@ import { ComicBookModule } from './api/v1/ComicBook/comic-book.module';
             ssl: process.env.DATABASE_SSL === 'true',
             entities: [`${__dirname}/**/*.entity{.js,.ts}`],
         }),
-        ComicBookModule,
+        ComicsModule,
+        ComicsImageModule,
+        // ...importModules(modulesDir),
     ],
     controllers: [],
     providers: [],
 })
 export class AppModule {}
+
+// function importModules(dir: string) {
+//     const modules = [];
+//     const files = readdirSync(dir, { withFileTypes: true });
+
+//     for (const file of files) {
+//         if (file.isDirectory()) {
+//             modules.push(...importModules(join(dir, file.name)));
+//         } else if (file.name.endsWith('.module.js')) {
+//             const modulePath = join(dir, file.name).replace(/\.js$/, '');
+//             // eslint-disable-next-line @typescript-eslint/no-var-requires
+//             const module = require(modulePath).default;
+//             modules.push(module);
+//         }
+//     }
+
+//     return modules;
+// }
