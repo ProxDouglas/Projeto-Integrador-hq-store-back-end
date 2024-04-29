@@ -20,7 +20,12 @@ import ComicsImageModule from './api/v1/comics-image/comic-image.module';
             password: process.env.DB_PASSWORD,
             database: process.env.DB_DATABASE,
             synchronize: true,
-            ssl: process.env.DATABASE_SSL === 'true',
+            ssl:
+                process.env.DATABASE_SSL === 'true'
+                    ? {
+                          rejectUnauthorized: false,
+                      }
+                    : false,
             entities: [`${__dirname}/**/*.entity{.js,.ts}`],
         }),
         ComicsModule,
