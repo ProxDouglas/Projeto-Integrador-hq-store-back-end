@@ -1,4 +1,12 @@
-import { IsInt, Min, Max, Length, IsNotEmpty, IsNumber } from 'class-validator';
+import {
+    IsInt,
+    Min,
+    Max,
+    Length,
+    IsNotEmpty,
+    IsNumber,
+    IsPositive,
+} from 'class-validator';
 
 export default class ComicsDto {
     id: number;
@@ -14,12 +22,14 @@ export default class ComicsDto {
     year_publication: number;
 
     @IsInt()
+    @IsPositive()
     @Min(1)
     @Max(12)
     @IsNotEmpty()
     month_publication: number;
 
     @IsInt()
+    @IsPositive()
     @Min(1)
     @Max(9999)
     @IsNotEmpty()
@@ -30,12 +40,14 @@ export default class ComicsDto {
     publisher: string;
 
     @IsInt()
+    @IsPositive()
     @Min(0)
     @Max(18)
     @IsNotEmpty()
     age_rating: number;
 
     @IsNumber()
+    @IsPositive()
     @IsNotEmpty()
     price: number;
 

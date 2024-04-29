@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import Comics from '../entity/comics.entity';
 import ComicsDto from '../../web/dto/comics.dto';
 import ComicsNotFound from '../../web/exception/comics-not-found';
-import ComicsImage from 'src/api/v1/comics-image/core/entity/comic-image.entity';
+import ComicsPagesDto from '../../web/dto/comics-pages.dto';
+import ComicsPagesQueryDto from '../../web/dto/comics-pages-query.dto';
 
 @Injectable()
 export default class ComicsService {
@@ -18,10 +19,35 @@ export default class ComicsService {
         return this.comicsRepository.find();
     }
 
+    async listPages(query: ComicsPagesQueryDto): Promise<ComicsPagesDto> {
+        return this.comicsRepository
+            .findAndCount({
+                where: { name: Like('%' + query.keyword + '%') },
+                take: query.take ?? 10,
+                skip: query.skip ?? 0,
+            })
+            .then(([comics, pages]) => {
+                const comicsPageDto = new ComicsPagesDto();
+                comicsPageDto.comics = comics;
+                comicsPageDto.pages = pages;
+                return comicsPageDto;
+            });
+    }
+
     async getById(id: number): Promise<Comics> {
-        return this.comicsRepository.findOneByOrFail({ id }).catch(() => {
-            throw new ComicsNotFound(id);
-        });
+        return this.comicsRepository
+            .findOneOrFail({
+                where: { id: id },
+                select: {
+                    images: {
+                        id: true,
+                    },
+                },
+                relations: { images: true },
+            })
+            .catch(() => {
+                throw new ComicsNotFound(id);
+            });
     }
 
     public async create(comicsDto: ComicsDto): Promise<ComicsDto> {

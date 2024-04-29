@@ -10,7 +10,7 @@ import ComicsImageModule from './api/v1/comics-image/comic-image.module';
 @Module({
     imports: [
         ConfigModule.forRoot({
-            envFilePath: ['.env.development.local'],
+            envFilePath: ['.env.development.local', '.env.development'],
         }),
         TypeOrmModule.forRoot({
             type: 'postgres',

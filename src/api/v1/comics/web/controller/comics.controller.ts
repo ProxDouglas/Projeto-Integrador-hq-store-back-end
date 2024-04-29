@@ -7,10 +7,14 @@ import {
     Body,
     Param,
     ParseIntPipe,
+    Query,
 } from '@nestjs/common';
 import ComicsService from '../../core/service/comics.service';
 import ComicsDto from '../dto/comics.dto';
 import Comics from '../../core/entity/comics.entity';
+import ComicsPagesDto from '../dto/comics-pages.dto';
+import ComicsPagesQueryDto from '../dto/comics-pages-query.dto';
+import { ComicsPagesQueryValidationPipe } from '../Pipe/comics-pages-query-pipe';
 
 @Controller('api/comics')
 export default class ComicsController {
@@ -23,6 +27,14 @@ export default class ComicsController {
     @Get()
     list(): Promise<Comics[]> {
         return this.comicsService.list();
+    }
+
+    @Get('pages')
+    listPages(
+        @Query('', ComicsPagesQueryValidationPipe)
+        comicsPagesQueryDto: ComicsPagesQueryDto,
+    ): Promise<ComicsPagesDto> {
+        return this.comicsService.listPages(comicsPagesQueryDto);
     }
 
     @Get(':id')
