@@ -1,0 +1,5 @@
+@startuml Busca HQs
+title Adicionar Hq Carrinho
+FrontEnd -> BackEnd : Adicionar Hq a carrinho
+BackEnd --> FrontEnd : Resposta de adição
+@enduml

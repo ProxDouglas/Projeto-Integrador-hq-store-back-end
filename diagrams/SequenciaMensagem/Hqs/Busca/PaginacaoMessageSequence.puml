@@ -1,0 +1,7 @@
+@startuml Busca HQs
+title Paginação de HQ
+FrontEnd -> BackEnd : Requisitar informação da Carrinho
+BackEnd --> FrontEnd : Informação de hq
+FrontEnd -> BackEnd : Requisitar imagem
+BackEnd --> FrontEnd : Imagem de HQ
+@enduml
