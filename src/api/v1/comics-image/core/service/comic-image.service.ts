@@ -10,7 +10,7 @@ export default class ComicsImageService {
     constructor(
         @InjectRepository(ComicsImage)
         private readonly comicsImageRepository: Repository<ComicsImage>,
-        @InjectRepository(ComicsImage)
+        @InjectRepository(Comics)
         private readonly comicsRepository: Repository<Comics>,
     ) {}
 
