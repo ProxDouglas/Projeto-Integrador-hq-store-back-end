@@ -15,7 +15,9 @@ import Comics from '../../core/entity/comics.entity';
 import ComicsPagesDto from '../dto/comics-pages.dto';
 import ComicsPagesQueryDto from '../dto/comics-pages-query.dto';
 import { ComicsPagesQueryValidationPipe } from '../Pipe/comics-pages-query-pipe';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('comics')
 @Controller('api/comics')
 export default class ComicsController {
     private readonly comicsService: ComicsService;

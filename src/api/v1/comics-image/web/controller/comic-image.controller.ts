@@ -15,7 +15,8 @@ import ResponseStatusSave from 'src/api/v1/response-status/response-status-save'
 import ResponseStatusDelete from 'src/api/v1/response-status/response-status-delete';
 import ComicsImageNotFound from '../exception/comics-image-not-found';
 import { FileSizeValidationPipe } from '../Pipe/file-size.pipe';
-
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+@ApiTags('images')
 @Controller('/api/comics/images')
 export default class ComicsImageController {
     private readonly comicsImageService: ComicsImageService;
@@ -24,18 +25,27 @@ export default class ComicsImageController {
         this.comicsImageService = comicsImageService;
     }
 
-    @Get(':comics_id')
-    async list(
-        @Param('comics_id', ParseIntPipe) comics_id: number,
-    ): Promise<ComicsImage[]> {
-        return this.comicsImageService.list(comics_id);
-    }
+    // @Get(':comics_id')
+    // async list(
+    //     @Param('comics_id', ParseIntPipe) comics_id: number,
+    // ): Promise<ComicsImage[]> {
+    //     return this.comicsImageService.list(comics_id);
+    // }
 
     @Get('by/:id')
     async getById(@Param('id', ParseIntPipe) id: number): Promise<ComicsImage> {
         return this.comicsImageService.getById(id);
     }
 
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                file: { type: 'string', format: 'binary' },
+            },
+        },
+    })
     @Post(':id')
     @UseInterceptors(FilesInterceptor('file'))
     async uploadFile(
