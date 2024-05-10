@@ -20,6 +20,7 @@ import CollectionModule from './api/v1/collection/collection.module';
             username: process.env.DB_USERNAME,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_DATABASE,
+            logging: process.env.NODE_ENV.toLowerCase() == 'development',
             synchronize: true,
             ssl:
                 process.env.DATABASE_SSL === 'true'

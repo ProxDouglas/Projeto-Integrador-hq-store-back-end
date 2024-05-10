@@ -43,11 +43,9 @@ export default class ComicsService {
                         id: true,
                     },
                 },
-                relations: { images: true },
+                relations: { images: true, collection: true },
             })
-            .catch(() => {
-                throw new ComicsNotFound(id);
-            });
+            .catch(() => Promise.reject(new ComicsNotFound(id)));
     }
 
     public async create(comicsDto: ComicsDto): Promise<ComicsDto> {

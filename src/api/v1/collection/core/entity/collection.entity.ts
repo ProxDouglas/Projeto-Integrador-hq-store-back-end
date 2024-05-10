@@ -23,6 +23,13 @@ export default class Collection {
     description: string;
 
     @ManyToMany(() => Comics)
-    @JoinTable()
+    @JoinTable({
+        name: 'hq_colecao',
+        joinColumn: { name: 'hq_id', referencedColumnName: 'id' },
+        inverseJoinColumn: {
+            name: 'collection_id',
+            referencedColumnName: 'id',
+        },
+    })
     comics: Comics[];
 }

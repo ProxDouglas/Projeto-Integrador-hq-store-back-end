@@ -3,12 +3,15 @@ import {
     Column,
     Entity,
     JoinColumn,
+    JoinTable,
+    ManyToMany,
     ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
 } from 'typeorm';
 import { IsInt, Min, Max, Length, IsNotEmpty, IsNumber } from 'class-validator';
 import ComicsImage from 'src/api/v1/comics-image/core/entity/comic-image.entity';
+import Collection from 'src/api/v1/collection/core/entity/collection.entity';
 
 @Entity({ name: 'hq' })
 export default class Comics {
@@ -59,7 +62,16 @@ export default class Comics {
     price: number;
 
     @OneToMany(() => ComicsImage, (comicsImage) => comicsImage.comics)
-    // @ManyToOne(() => ComicsImage, (comicsImage) => comicsImage.comics)
-    // @JoinColumn({ name: 'hq_id', referencedColumnName: 'id' })
     images: ComicsImage[];
+
+    @ManyToMany(() => Collection)
+    @JoinTable({
+        name: 'hq_colecao',
+        joinColumn: {
+            name: 'collection_id',
+            referencedColumnName: 'id',
+        },
+        inverseJoinColumn: { name: 'hq_id', referencedColumnName: 'id' },
+    })
+    collection: Collection[];
 }
