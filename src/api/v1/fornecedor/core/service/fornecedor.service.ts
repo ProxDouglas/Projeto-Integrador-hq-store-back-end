@@ -17,6 +17,14 @@ export default class FornecedorService {
         return this.fornecedorRepository.find();
     }
 
+    async getById(id: number): Promise<Fornecedor> {
+        return this.fornecedorRepository
+            .findOneOrFail({
+                where: { id: id }
+            })
+            .catch(() => Promise.reject(new FornecedorNotFound(id)));
+    }
+
     public async create(fornecedorDto: FornecedorDto): Promise<FornecedorDto> {
         return this.fornecedorRepository.save(fornecedorDto);
     }
