@@ -25,9 +25,9 @@ export default class Collection {
     @ManyToMany(() => Comics)
     @JoinTable({
         name: 'hq_colecao',
-        joinColumn: { name: 'hq_id', referencedColumnName: 'id' },
+        joinColumn: { name: 'colecao_id', referencedColumnName: 'id' },
         inverseJoinColumn: {
-            name: 'collection_id',
+            name: 'hq_id',
             referencedColumnName: 'id',
         },
     })

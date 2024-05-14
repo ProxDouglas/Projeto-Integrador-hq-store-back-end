@@ -68,10 +68,10 @@ export default class Comics {
     @JoinTable({
         name: 'hq_colecao',
         joinColumn: {
-            name: 'collection_id',
+            name: 'hq_id',
             referencedColumnName: 'id',
         },
-        inverseJoinColumn: { name: 'hq_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'colecao_id', referencedColumnName: 'id' },
     })
     collection: Collection[];
 }

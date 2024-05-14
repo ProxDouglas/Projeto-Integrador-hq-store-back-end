@@ -25,6 +25,12 @@ export default class ComicsService {
                 where: { name: Like('%' + query.keyword + '%') },
                 take: query.take ?? 10,
                 skip: query.skip ?? 0,
+                select: {
+                    images: {
+                        id: true,
+                    },
+                },
+                relations: { images: true, collection: true },
             })
             .then(([comics, pages]) => {
                 const comicsPageDto = new ComicsPagesDto();

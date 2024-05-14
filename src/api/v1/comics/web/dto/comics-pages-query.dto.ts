@@ -1,12 +1,12 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 export default class ComicsPagesQueryDto {
-    @ApiProperty()
+    @ApiProperty({ required: false })
     take: number;
 
-    @ApiProperty()
+    @ApiProperty({ required: false })
     skip: number;
 
-    @ApiProperty()
+    @ApiProperty({ required: false })
     keyword: string;
 }

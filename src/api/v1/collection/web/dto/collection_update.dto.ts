@@ -1,9 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Length, IsNotEmpty } from 'class-validator';
-import Comics from 'src/api/v1/comics/core/entity/comics.entity';
-import ComicsAssociateDto from 'src/api/v1/comics/web/dto/comics-associate.dto';
 
-export default class CollectionCreateDto {
+export default class CollectionUpdateDto {
     // @ApiProperty()
     id: number;
 
@@ -15,7 +13,4 @@ export default class CollectionCreateDto {
     @ApiProperty()
     @Length(0, 700)
     description: string;
-
-    @ApiProperty()
-    comics: ComicsAssociateDto[];
 }
