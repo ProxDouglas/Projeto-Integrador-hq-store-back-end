@@ -12,7 +12,7 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import ComicsImageService from '../../core/service/comic-image.service';
 import ComicsImage from '../../core/entity/comic-image.entity';
 import ResponseStatusSave from 'src/api/v1/response-status/response-status-save';
-import ResponseStatusDelete from 'src/api/v1/response-status/response-status-delete';
+import ResponseStatusDefault from 'src/api/v1/response-status/response-status-default';
 import ComicsImageNotFound from '../exception/comics-image-not-found';
 import { FileSizeValidationPipe } from '../Pipe/file-size.pipe';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
@@ -32,7 +32,7 @@ export default class ComicsImageController {
     //     return this.comicsImageService.list(comics_id);
     // }
 
-    @Get('by/:id')
+    @Get(':id')
     async getById(@Param('id', ParseIntPipe) id: number): Promise<ComicsImage> {
         return this.comicsImageService.getById(id);
     }
@@ -62,10 +62,10 @@ export default class ComicsImageController {
     @Delete(':id')
     async delete(
         @Param('id', ParseIntPipe) id: number,
-    ): Promise<ResponseStatusDelete> {
+    ): Promise<ResponseStatusDefault> {
         return this.comicsImageService.delete(id).then((deleted) => {
             if (deleted === false) throw new ComicsImageNotFound(id);
-            return new ResponseStatusDelete();
+            return new ResponseStatusDefault();
         });
     }
 }

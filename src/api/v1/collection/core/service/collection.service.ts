@@ -30,6 +30,12 @@ export default class CollectionService {
         return this.collectionRepository.find();
     }
 
+    getById(id: number): Promise<Collection> {
+        return this.collectionRepository.findOneOrFail({
+            where: { id },
+        });
+    }
+
     create(
         collectionCreateDto: CollectionCreateDto,
     ): Promise<CollectionCreateDto> {
@@ -40,13 +46,13 @@ export default class CollectionService {
             );
     }
 
-    addComics(id: number, comicsAssociate: ComicsAssociateDto[]) {
+    addComics(id: number, comicsAssociateDto: ComicsAssociateDto[]) {
         return this.dataSource
             .getRepository('hq_colecao')
             .createQueryBuilder('hq_colecao')
             .insert()
             .values(
-                comicsAssociate.map((comics) => ({
+                comicsAssociateDto.map((comics) => ({
                     hq_id: comics.id,
                     colecao_id: id,
                 })),
@@ -57,7 +63,28 @@ export default class CollectionService {
                 return Promise.reject(
                     new ResponseException(
                         500,
-                        'Não foi possivel associar as hqs as coleções!',
+                        'Não foi possivel associar a hq a coleção!',
+                    ),
+                );
+            });
+    }
+
+    removeComics(id: number, comics_id: number) {
+        return this.dataSource
+            .getRepository('hq_colecao')
+            .createQueryBuilder('hq_colecao')
+            .delete()
+            .where('userId = :hq_id AND colecao_id = :roleId', {
+                hq_id: comics_id,
+                colecao_id: id,
+            })
+            .execute()
+            .catch((error) => {
+                console.error(error);
+                return Promise.reject(
+                    new ResponseException(
+                        500,
+                        'Não foi possivel desassociar a hq a coleção!',
                     ),
                 );
             });
@@ -84,8 +111,9 @@ export default class CollectionService {
 
     delete(id: number): Promise<boolean> {
         return this.collectionRepository
-            .findOneByOrFail({
-                id,
+            .findOneOrFail({
+                where: { id },
+                select: { id: true },
             })
             .then((collection) => this.collectionRepository.delete(collection))
             .then(() => true)

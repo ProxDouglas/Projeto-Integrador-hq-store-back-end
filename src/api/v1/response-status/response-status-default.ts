@@ -1,6 +1,6 @@
 import ResponseStatus from './response-status.interface';
 
-export default class ResponseStatusDelete implements ResponseStatus {
+export default class ResponseStatusDefault implements ResponseStatus {
     message: string;
     statusCode: number;
 
