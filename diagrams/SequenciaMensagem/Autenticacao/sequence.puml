@@ -1,13 +1,15 @@
 @startuml Login
-title Autenticação google OAUTH2
-FrontEnd -> BackEnd : Login
-BackEnd -> GoogleOAUTH2 : Requisitando codigo url login
-GoogleOAUTH2 -> BackEnd : codigo de redirecionamento Login
-BackEnd -> FrontEnd: Url de login Google
-FrontEnd -> GoogleOAUTH2 : Login e consentimento
-GoogleOAUTH2 -> FrontEnd : Token de resposta
-FrontEnd -> BackEnd : Criar usuário / Autenticar
-BackEnd -> GoogleOAUTH2 : Validar Token
-GoogleOAUTH2 -> BackEnd : Resposta de validade de Token
-BackEnd -> FrontEnd : Resposta de autenticado
+title Autenticação google AUTH0
+' FrontEnd -> BackEnd : Login
+' BackEnd -> GoogleOAUTH2 : Requisitando codigo url login
+' GoogleOAUTH2 -> BackEnd : codigo de redirecionamento Login
+' BackEnd -> FrontEnd: Url de login Google
+' FrontEnd -> GoogleOAUTH2 : Login e consentimento
+' GoogleOAUTH2 -> FrontEnd : Token de resposta
+' FrontEnd -> BackEnd : Criar usuário / Autenticar
+' BackEnd -> GoogleOAUTH2 : Validar Token
+' GoogleOAUTH2 -> BackEnd : Resposta de validade de Token
+' BackEnd -> FrontEnd : Resposta de autenticado
+front_end -> AUTH0 : Autenticação utilizando AUTH0 
+AUTH0 -> front_end : Usuário e informações 
 @enduml

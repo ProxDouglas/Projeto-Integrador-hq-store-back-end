@@ -1,0 +1,20 @@
+@startuml
+() "Biblioteca Auth0" - [Auth0 Authenticator]
+package "Loja de Quadrinhos" {
+    [Back End]
+    [Aplicação WEB] 
+    [Aplicação WEB] ..> "Biblioteca Auth0" : use
+}
+
+
+component "Back End" {
+  port "HTTP REST" 
+  () "sitema de busca" - [busca de produtos] 
+  () "sitema carrinho" - [carrinho] 
+}
+
+"Aplicação WEB" --> "HTTP REST"
+"HTTP REST" ..> "sitema de busca" : use
+"HTTP REST" ..> "sitema carrinho" : use
+
+@enduml

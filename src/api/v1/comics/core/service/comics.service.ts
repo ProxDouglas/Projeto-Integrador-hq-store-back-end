@@ -6,6 +6,10 @@ import ComicsDto from '../../web/dto/comics.dto';
 import ComicsNotFound from '../../web/exception/comics-not-found';
 import ComicsPagesDto from '../../web/dto/comics-pages.dto';
 import ComicsPagesQueryDto from '../../web/dto/comics-pages-query.dto';
+import { TypeFinder } from '../enum/TypeFinder';
+import FilterName from '../filter-factory/filter/filter-name';
+import FilterFactory from '../filter-factory/interface/filter-factory';
+import FilterAgePublication from '../filter-factory/filter/filter-age-publication';
 
 @Injectable()
 export default class ComicsService {
@@ -20,9 +24,16 @@ export default class ComicsService {
     }
 
     async listPages(query: ComicsPagesQueryDto): Promise<ComicsPagesDto> {
+        const filterMap = new Map<TypeFinder, FilterFactory>([
+            [TypeFinder.NAME, new FilterName()],
+            [TypeFinder.YEAR_PUBLICATION, new FilterAgePublication()],
+        ]);
+
+        const filter = filterMap.get(query.typeFinder);
+
         return this.comicsRepository
             .findAndCount({
-                where: { name: Like('%' + query.keyword + '%') },
+                ...filter.generateFinder(query),
                 take: query.take ?? 10,
                 skip: query.skip ?? 0,
                 select: {
