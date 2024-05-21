@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Like, Repository } from 'typeorm';
 import Comics from '../entity/comics.entity';
 import ComicsDto from '../../web/dto/comics.dto';
 import ComicsNotFound from '../../web/exception/comics-not-found';
@@ -10,45 +10,29 @@ import { TypeFinder } from '../enum/TypeFinder';
 import FilterName from '../filter-factory/filter/filter-name';
 import FilterFactory from '../filter-factory/interface/filter-factory';
 import FilterAgePublication from '../filter-factory/filter/filter-age-publication';
+import ComicsPagesService from './comics-pages.service';
 
 @Injectable()
 export default class ComicsService {
+    private readonly comicsPagesService: ComicsPagesService;
+
     constructor(
         @InjectRepository(Comics)
         private readonly comicsRepository: Repository<Comics>,
         // private readonly comicsMapper: ComicsMapper,
-    ) {}
+        comicsPagesService: ComicsPagesService,
+    ) {
+        this.comicsPagesService = comicsPagesService;
+    }
 
     async list(): Promise<Comics[]> {
         return this.comicsRepository.find();
     }
 
-    async listPages(query: ComicsPagesQueryDto): Promise<ComicsPagesDto> {
-        const filterMap = new Map<TypeFinder, FilterFactory>([
-            [TypeFinder.NAME, new FilterName()],
-            [TypeFinder.YEAR_PUBLICATION, new FilterAgePublication()],
-        ]);
-
-        const filter = filterMap.get(query.typeFinder);
-
-        return this.comicsRepository
-            .findAndCount({
-                ...filter.generateFinder(query),
-                take: query.take ?? 10,
-                skip: query.skip ?? 0,
-                select: {
-                    images: {
-                        id: true,
-                    },
-                },
-                relations: { images: true, collection: true },
-            })
-            .then(([comics, pages]) => {
-                const comicsPageDto = new ComicsPagesDto();
-                comicsPageDto.comics = comics;
-                comicsPageDto.pages = pages;
-                return comicsPageDto;
-            });
+    async listPages(
+        comicsPagesQueryDto: ComicsPagesQueryDto,
+    ): Promise<ComicsPagesDto> {
+        return this.comicsPagesService.listPages(comicsPagesQueryDto);
     }
 
     async getById(id: number): Promise<Comics> {
