@@ -1,33 +1,33 @@
-import { Between, FindOneOptions, SelectQueryBuilder } from 'typeorm';
+import { SelectQueryBuilder } from 'typeorm';
 import FilterFactory from '../interface/filter-factory';
 import Comics from '../../entity/comics.entity';
 import ComicsPagesQueryDto from '../../../web/dto/comics-pages-query.dto';
-
-// export default class FilterAgePublication implements FilterFactory {
-//     generateFinder(comicsPageDto: ComicsPagesQueryDto): FindOneOptions<Comics> {
-//         let findOneOptions: FindOneOptions<Comics>;
-//         if (comicsPageDto.keyword.length === 2)
-//             findOneOptions = {
-//                 where: {
-//                     year_publication: Between(
-//                         parseInt(comicsPageDto.keyword[0]),
-//                         parseInt(comicsPageDto.keyword[1]),
-//                     ),
-//                 },
-//             };
-//         return findOneOptions;
-//     }
-// }
+import ResponseException from 'src/api/v1/exception/response.exception';
 export default class FilterAgePublication implements FilterFactory {
     generateFinder(
         comicsPageDto: ComicsPagesQueryDto,
         selectQueryBuilder: SelectQueryBuilder<Comics>,
     ): SelectQueryBuilder<Comics> {
+        let dataInicial = 1900;
+        let dataFinal = 2900;
+
+        if (comicsPageDto.keyword.length === 0)
+            throw new ResponseException(
+                400,
+                'To search comics by date, enter the start date!',
+            );
+
+        if (comicsPageDto.keyword[0])
+            dataInicial = parseInt(comicsPageDto.keyword[0]);
+
+        if (comicsPageDto.keyword.length === 2 && comicsPageDto.keyword[1])
+            dataFinal = parseInt(comicsPageDto.keyword[1]);
+
         return selectQueryBuilder.where(
             'hq.year_publication BETWEEN :date_ini AND :date_end',
             {
-                date_ini: parseInt(comicsPageDto.keyword[0]),
-                date_end: parseInt(comicsPageDto.keyword[1]),
+                date_ini: dataInicial,
+                date_end: dataFinal,
             },
         );
     }

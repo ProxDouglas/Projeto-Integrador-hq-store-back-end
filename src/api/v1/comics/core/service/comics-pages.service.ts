@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import Comics from '../entity/comics.entity';
@@ -8,6 +8,8 @@ import { TypeFinder } from '../enum/TypeFinder';
 import FilterName from '../filter-factory/filter/filter-name';
 import FilterFactory from '../filter-factory/interface/filter-factory';
 import FilterAgePublication from '../filter-factory/filter/filter-age-publication';
+import FilterCollection from '../filter-factory/filter/filter-collection';
+import ResponseException from 'src/api/v1/exception/response.exception';
 
 @Injectable()
 export default class ComicsPagesService {
@@ -20,6 +22,7 @@ export default class ComicsPagesService {
         this.filterMap = new Map<TypeFinder, FilterFactory>([
             [TypeFinder.NAME, new FilterName()],
             [TypeFinder.YEAR_PUBLICATION, new FilterAgePublication()],
+            [TypeFinder.COLLECTION, new FilterCollection()],
         ]);
     }
 
@@ -39,11 +42,18 @@ export default class ComicsPagesService {
             comicsPagesQueryDto.typeFinder,
         );
 
-        if (filterFactory)
-            queryBuilder = filterFactory.generateFinder(
-                comicsPagesQueryDto,
-                queryBuilder,
-            );
+        if (filterFactory) {
+            try {
+                queryBuilder = filterFactory.generateFinder(
+                    comicsPagesQueryDto,
+                    queryBuilder,
+                );
+            } catch (error) {
+                return Promise.reject(
+                    new ResponseException(error.statusCode, error.message),
+                );
+            }
+        }
 
         return queryBuilder.getManyAndCount().then(([comics, pages]) => {
             const comicsPageDto = new ComicsPagesDto();
