@@ -1,17 +1,14 @@
-// import { ComicsImage } from 'src/api/v1/ComicsImages/core/entity/ComicsImage.entiry';
 import {
     Column,
     Entity,
-    JoinColumn,
     JoinTable,
     ManyToMany,
-    ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
 } from 'typeorm';
 import { IsInt, Min, Max, Length, IsNotEmpty, IsNumber } from 'class-validator';
-import ComicsImage from 'src/api/v1/comics-image/core/entity/comic-image.entity';
-import Collection from 'src/api/v1/collection/core/entity/collection.entity';
+import ComicsImage from '../../../comics-image/core/entity/comic-image.entity';
+import Collection from '../../../collection/core/entity/collection.entity';
 
 @Entity({ name: 'hq' })
 export default class Comics {
@@ -74,4 +71,17 @@ export default class Comics {
         inverseJoinColumn: { name: 'colecao_id', referencedColumnName: 'id' },
     })
     collection: Collection[];
+
+    constructor(comics?: Partial<Comics>) {
+        this.id = comics?.id;
+        this.name = comics?.name;
+        this.year_publication = comics?.year_publication;
+        this.month_publication = comics?.month_publication;
+        this.number_pages = comics?.number_pages;
+        this.publisher = comics?.publisher;
+        this.age_rating = comics?.age_rating;
+        this.price = comics?.price;
+        this.images = comics?.images;
+        this.collection = comics?.collection;
+    }
 }

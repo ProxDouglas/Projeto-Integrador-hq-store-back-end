@@ -15,7 +15,7 @@ import Comics from '../../core/entity/comics.entity';
 import ComicsPagesDto from '../dto/comics-pages.dto';
 import ComicsPagesQueryDto from '../dto/comics-pages-query.dto';
 import { ComicsPagesQueryValidationPipe } from '../Pipe/comics-pages-query-pipe';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('comics')
 @Controller('api/comics')
@@ -48,6 +48,12 @@ export default class ComicsController {
     }
 
     @Post()
+    @ApiOperation({ summary: 'Adicionar uma nova hq.' })
+    @ApiResponse({
+        status: 201,
+        description: 'Nova hq adicionada.',
+        type: ComicsDto,
+    })
     create(@Body() comicsDto: ComicsDto): Promise<ComicsDto> {
         return this.comicsService.create(comicsDto);
     }

@@ -6,7 +6,7 @@ import {
     PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Length, IsNotEmpty } from 'class-validator';
-import Comics from 'src/api/v1/comics/core/entity/comics.entity';
+import Comics from '../../../comics/core/entity/comics.entity';
 
 @Entity({ name: 'colecao' })
 export default class Collection {

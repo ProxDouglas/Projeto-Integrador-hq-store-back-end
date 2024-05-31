@@ -6,7 +6,7 @@ import {
     OneToMany,
     PrimaryGeneratedColumn,
 } from 'typeorm';
-import Comics from 'src/api/v1/comics/core/entity/comics.entity';
+import Comics from '../../../comics/core/entity/comics.entity';
 
 @Entity({ name: 'hq_imagem' })
 export default class ComicsImage {
