@@ -7,6 +7,7 @@ import ComicsModule from './api/v1/comics/comics.module';
 import ComicsImageModule from './api/v1/comics-image/comic-image.module';
 import CollectionModule from './api/v1/collection/collection.module';
 import FornecedorModule from './api/v1/fornecedor/fornecedor.module';
+import AutorModule from './api/v1/autor/autor.module';
 
 // const modulesDir = join(__dirname, 'api/v1');
 @Module({
@@ -35,6 +36,7 @@ import FornecedorModule from './api/v1/fornecedor/fornecedor.module';
         ComicsImageModule,
         CollectionModule,
         FornecedorModule,
+        AutorModule,
         // ...importModules(modulesDir),
     ],
     controllers: [],
