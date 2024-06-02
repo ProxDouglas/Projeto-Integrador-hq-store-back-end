@@ -1,15 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Like, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import Comics from '../entity/comics.entity';
 import ComicsDto from '../../web/dto/comics.dto';
 import ComicsNotFound from '../../web/exception/comics-not-found';
 import ComicsPagesDto from '../../web/dto/comics-pages.dto';
 import ComicsPagesQueryDto from '../../web/dto/comics-pages-query.dto';
-import { TypeFinder } from '../enum/TypeFinder';
-import FilterName from '../filter-factory/filter/filter-name';
-import FilterFactory from '../filter-factory/interface/filter-factory';
-import FilterAgePublication from '../filter-factory/filter/filter-age-publication';
 import ComicsPagesService from './comics-pages.service';
 
 @Injectable()

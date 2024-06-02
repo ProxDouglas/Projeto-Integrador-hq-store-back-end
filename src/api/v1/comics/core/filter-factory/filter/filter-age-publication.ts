@@ -2,7 +2,7 @@ import { SelectQueryBuilder } from 'typeorm';
 import FilterFactory from '../interface/filter-factory';
 import Comics from '../../entity/comics.entity';
 import ComicsPagesQueryDto from '../../../web/dto/comics-pages-query.dto';
-import ResponseException from 'src/api/v1/exception/response.exception';
+import ResponseException from '../../../../exception/response.exception';
 export default class FilterAgePublication implements FilterFactory {
     generateFinder(
         comicsPageDto: ComicsPagesQueryDto,

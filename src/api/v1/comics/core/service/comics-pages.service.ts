@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import Comics from '../entity/comics.entity';
@@ -9,7 +9,7 @@ import FilterName from '../filter-factory/filter/filter-name';
 import FilterFactory from '../filter-factory/interface/filter-factory';
 import FilterAgePublication from '../filter-factory/filter/filter-age-publication';
 import FilterCollection from '../filter-factory/filter/filter-collection';
-import ResponseException from 'src/api/v1/exception/response.exception';
+import ResponseException from '../../../exception/response.exception';
 
 @Injectable()
 export default class ComicsPagesService {
