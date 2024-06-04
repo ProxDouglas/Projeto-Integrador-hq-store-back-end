@@ -16,6 +16,7 @@ import ResponseStatusDefault from 'src/api/v1/response-status/response-status-de
 import ComicsImageNotFound from '../exception/comics-image-not-found';
 import { FileSizeValidationPipe } from '../Pipe/file-size.pipe';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import ComicsImageDto from '../dto/comic-image.dto';
 @ApiTags('images')
 @Controller('/api/comics/images')
 export default class ComicsImageController {
@@ -25,15 +26,8 @@ export default class ComicsImageController {
         this.comicsImageService = comicsImageService;
     }
 
-    // @Get(':comics_id')
-    // async list(
-    //     @Param('comics_id', ParseIntPipe) comics_id: number,
-    // ): Promise<ComicsImage[]> {
-    //     return this.comicsImageService.list(comics_id);
-    // }
-
     @Get(':id')
-    async getById(@Param('id', ParseIntPipe) id: number): Promise<ComicsImage> {
+    async getById(@Param('id', ParseIntPipe) id: number): Promise<string> {
         return this.comicsImageService.getById(id);
     }
 
@@ -52,7 +46,7 @@ export default class ComicsImageController {
         @Param('id', ParseIntPipe)
         id: number,
         @UploadedFiles(new FileSizeValidationPipe())
-        comicsImage: Array<ComicsImage>,
+        comicsImage: Array<ComicsImageDto>,
     ): Promise<ResponseStatusSave> {
         return this.comicsImageService
             .create(id, comicsImage)

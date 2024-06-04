@@ -3,7 +3,6 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
-    OneToMany,
     PrimaryGeneratedColumn,
 } from 'typeorm';
 import Comics from '../../../comics/core/entity/comics.entity';
@@ -13,20 +12,8 @@ export default class ComicsImage {
     @PrimaryGeneratedColumn('increment')
     id: number;
 
-    @Column({ name: 'imagem', type: 'bytea', nullable: false })
-    buffer: Buffer;
-
-    @Column({ name: 'codificacao', type: 'varchar', nullable: false })
-    encoding: string;
-
-    @Column({ name: 'mimetype', type: 'varchar', nullable: false })
-    mimetype: string;
-
-    @Column({ name: 'nome_original', type: 'varchar', nullable: false })
-    originalname: string;
-
-    @Column({ name: 'size', type: 'integer', nullable: false })
-    size: number;
+    @Column({ name: 'nome_minio', type: 'varchar', nullable: true })
+    name: string;
 
     @Column({ name: 'hq_id', type: 'integer', nullable: false })
     comics_id: number;
