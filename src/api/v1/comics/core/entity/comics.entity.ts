@@ -9,6 +9,7 @@ import {
 import { IsInt, Min, Max, Length, IsNotEmpty, IsNumber } from 'class-validator';
 import ComicsImage from '../../../comics-image/core/entity/comic-image.entity';
 import Collection from '../../../collection/core/entity/collection.entity';
+import Carrinho from 'src/api/v1/carrinho/core/entity/carrinho.entity';
 
 @Entity({ name: 'hq' })
 export default class Comics {
@@ -72,6 +73,9 @@ export default class Comics {
     })
     collection: Collection[];
 
+    @OneToMany(() => Carrinho, (carrinho) => carrinho.comics)
+    carrinho: Carrinho;
+
     constructor(comics?: Partial<Comics>) {
         this.id = comics?.id;
         this.name = comics?.name;
@@ -83,5 +87,6 @@ export default class Comics {
         this.price = comics?.price;
         this.images = comics?.images;
         this.collection = comics?.collection;
+        this.carrinho = comics?.carrinho;
     }
 }
