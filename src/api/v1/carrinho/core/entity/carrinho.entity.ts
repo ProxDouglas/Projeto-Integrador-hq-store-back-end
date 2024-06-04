@@ -28,10 +28,10 @@ import Comics from '../../../comics/core/entity/comics.entity';
 @Entity({ name: 'carrinho' })
 export default class Carrinho {
     @PrimaryColumn({ name: 'apreciador_id' })
-    apreciadorId: number;
+    apreciador_id: number;
 
     @PrimaryColumn({ name: 'hq_id' })
-    comicsId: number;
+    hq_id: number;
 
     @ManyToOne(() => Apreciador, (apreciador) => apreciador.carrinho)
     @JoinColumn({ name: 'apreciador_id', referencedColumnName: 'id' })

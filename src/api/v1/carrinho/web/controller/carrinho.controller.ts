@@ -28,7 +28,7 @@ export default class CarrinhoController {
         @Param('apreciador_id', ParseIntPipe)
         apreciador_id: number,
     ): Promise<Carrinho[]> {
-        return this.carrinhoService.list();
+        return this.carrinhoService.list(apreciador_id);
     }
 
     // @Post()
