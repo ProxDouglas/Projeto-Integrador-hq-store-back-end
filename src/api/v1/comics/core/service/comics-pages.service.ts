@@ -55,11 +55,22 @@ export default class ComicsPagesService {
             }
         }
 
-        return queryBuilder.getManyAndCount().then(([comics, pages]) => {
+        return queryBuilder.getManyAndCount().then(([comics, comicsQtd]) => {
             const comicsPageDto = new ComicsPagesDto();
             comicsPageDto.comics = comics;
-            comicsPageDto.pages = pages;
+            comicsPageDto.pages = this.calcularPaginas(
+                comicsQtd,
+                comicsPagesQueryDto.take,
+            );
             return comicsPageDto;
         });
+    }
+
+    private calcularPaginas(dividendo: number, divisor: number) {
+        let resultado = dividendo / divisor;
+        if (dividendo % divisor !== 0) {
+            resultado++;
+        }
+        return resultado;
     }
 }
