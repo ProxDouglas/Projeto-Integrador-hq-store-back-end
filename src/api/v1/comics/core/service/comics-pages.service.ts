@@ -10,15 +10,19 @@ import FilterFactory from '../filter-factory/interface/filter-factory';
 import FilterAgePublication from '../filter-factory/filter/filter-age-publication';
 import FilterCollection from '../filter-factory/filter/filter-collection';
 import ResponseException from '../../../exception/response.exception';
+import AWSConnectorS3 from 'src/api/v1/comics-image/core/connector/aws-s3.connector';
 
 @Injectable()
 export default class ComicsPagesService {
     private readonly filterMap: Map<TypeFinder, FilterFactory>;
+    private readonly connectorS3: AWSConnectorS3;
 
     constructor(
         @InjectDataSource()
         private readonly dataSource: DataSource,
+        connectorS3: AWSConnectorS3,
     ) {
+        this.connectorS3 = connectorS3;
         this.filterMap = new Map<TypeFinder, FilterFactory>([
             [TypeFinder.NAME, new FilterName()],
             [TypeFinder.YEAR_PUBLICATION, new FilterAgePublication()],
@@ -33,7 +37,7 @@ export default class ComicsPagesService {
             .getRepository(Comics)
             .createQueryBuilder('hq')
             .leftJoin('hq.images', 'hq_imagem', null, ['hq_imagem.id'])
-            .addSelect(['hq_imagem.id'])
+            .addSelect(['hq_imagem.id', 'hq_imagem.name'])
             .leftJoinAndSelect('hq.collection', 'colecao')
             .take(comicsPagesQueryDto.take ?? 10)
             .skip(comicsPagesQueryDto.skip ?? 0);
@@ -62,8 +66,30 @@ export default class ComicsPagesService {
                 comicsQtd,
                 comicsPagesQueryDto.take,
             );
-            return comicsPageDto;
+            return this.gerarUrl(comicsPageDto);
+            // return comicsPageDto;
         });
+    }
+
+    async gerarUrl(comicsPageDto: ComicsPagesDto) {
+        return Promise.all(
+            comicsPageDto.comics.map(async (comics) => {
+                if (comics.images.length > 0)
+                    return this.connectorS3
+                        .getFile(comics.images[0].name)
+                        .then((url) => url)
+                        .catch(() => '');
+                return '';
+            }),
+        )
+            .then((imagesUrl) => {
+                comicsPageDto.comics.forEach((comics, index) => {
+                    if (comics.images.length > 0)
+                        comics.images[0].url = imagesUrl[index];
+                });
+                return comicsPageDto;
+            })
+            .catch(() => comicsPageDto);
     }
 
     private calcularPaginas(dividendo: number, divisor: number) {

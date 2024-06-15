@@ -1,7 +1,7 @@
 @startuml Busca HQs
 title Vitrine de HQ
-FrontEnd -> BackEnd : Requisitar informação da Hq
-BackEnd --> FrontEnd : Informação de hq
-FrontEnd -> BackEnd : Requisitar imagens
-BackEnd --> FrontEnd : Imagem de HQ
+FrontEnd -> BackEnd : Requisitar informação de Hqs paginados
+FrontEnd --> BackEnd : Informação das hqs
+Minio --> FrontEnd : Imagem de HQ
+FrontEnd -> Minio : Buscar imagens
 @enduml

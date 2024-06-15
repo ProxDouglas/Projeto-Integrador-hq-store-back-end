@@ -15,6 +15,8 @@ export default class ComicsImage {
     @Column({ name: 'nome_minio', type: 'varchar', nullable: true })
     name: string;
 
+    url: string;
+
     @Column({ name: 'hq_id', type: 'integer', nullable: false })
     comics_id: number;
 
