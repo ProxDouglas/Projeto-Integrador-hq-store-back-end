@@ -36,11 +36,11 @@ export default class ComicsPagesService {
         let queryBuilder = this.dataSource
             .getRepository(Comics)
             .createQueryBuilder('hq')
-            .leftJoin('hq.images', 'hq_imagem', null, ['hq_imagem.id'])
+            .leftJoin('hq.image', 'hq_imagem', null, ['hq_imagem.id'])
             .addSelect(['hq_imagem.id', 'hq_imagem.name'])
             .leftJoinAndSelect('hq.collection', 'colecao')
-            .take(comicsPagesQueryDto.take ?? 10)
-            .skip(comicsPagesQueryDto.skip ?? 0);
+            .take(comicsPagesQueryDto.take)
+            .skip(comicsPagesQueryDto.skip * comicsPagesQueryDto.take);
 
         const filterFactory = this.filterMap.get(
             comicsPagesQueryDto.typeFinder,
@@ -74,9 +74,9 @@ export default class ComicsPagesService {
     async gerarUrl(comicsPageDto: ComicsPagesDto) {
         return Promise.all(
             comicsPageDto.comics.map(async (comics) => {
-                if (comics.images.length > 0)
+                if (comics.image)
                     return this.connectorS3
-                        .getFile(comics.images[0].name)
+                        .getFile(comics.image.name)
                         .then((url) => url)
                         .catch(() => '');
                 return '';
@@ -84,8 +84,7 @@ export default class ComicsPagesService {
         )
             .then((imagesUrl) => {
                 comicsPageDto.comics.forEach((comics, index) => {
-                    if (comics.images.length > 0)
-                        comics.images[0].url = imagesUrl[index];
+                    if (comics.image) comics.image.url = imagesUrl[index];
                 });
                 return comicsPageDto;
             })
@@ -93,10 +92,12 @@ export default class ComicsPagesService {
     }
 
     private calcularPaginas(dividendo: number, divisor: number) {
+        if (divisor === 0) return 1;
+
         let resultado = dividendo / divisor;
         if (dividendo % divisor !== 0) {
             resultado++;
         }
-        return resultado;
+        return Math.floor(resultado);
     }
 }

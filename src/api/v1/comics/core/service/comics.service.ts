@@ -36,11 +36,11 @@ export default class ComicsService {
             .findOneOrFail({
                 where: { id: id },
                 select: {
-                    images: {
+                    image: {
                         id: true,
                     },
                 },
-                relations: { images: true, collection: true },
+                relations: { image: true, collection: true },
             })
             .catch(() => Promise.reject(new ComicsNotFound(id)));
     }

@@ -31,11 +31,17 @@ export default class ComicsController {
         return this.comicsService.list();
     }
 
-    @Get('pages')
+    @Get('pages/take/:take/skip/:skip/')
     listPages(
+        @Param('take', ParseIntPipe)
+        take: number,
+        @Param('skip', ParseIntPipe)
+        skip: number,
         @Query('', ComicsPagesQueryValidationPipe)
         comicsPagesQueryDto: ComicsPagesQueryDto,
     ): Promise<ComicsPagesDto> {
+        comicsPagesQueryDto.take = take;
+        comicsPagesQueryDto.skip = skip;
         return this.comicsService.listPages(comicsPagesQueryDto);
     }
 

@@ -14,18 +14,13 @@ const comicsListPages = [
         publisher: 'Shonen Jumps',
         age_rating: 10,
         price: 29.99,
-        images: [
-            {
-                id: 1,
-                buffer: undefined,
-                encoding: '',
-                mimetype: '',
-                originalname: '',
-                size: 0,
-                comics_id: 0,
-                comics: undefined,
-            },
-        ],
+        image: {
+            id: 1,
+            comics_id: 0,
+            comics: undefined,
+            name: '',
+            url: '',
+        },
         collection: [
             {
                 id: 1,
@@ -44,18 +39,13 @@ const comicsListPages = [
         publisher: 'Shonen Jumps',
         age_rating: 10,
         price: 29.99,
-        images: [
-            {
-                id: 4,
-                buffer: undefined,
-                encoding: '',
-                mimetype: '',
-                originalname: '',
-                size: 0,
-                comics_id: 0,
-                comics: undefined,
-            },
-        ],
+        image: {
+            id: 4,
+            comics_id: 0,
+            comics: undefined,
+            name: '',
+            url: '',
+        },
         collection: [
             {
                 id: 1,

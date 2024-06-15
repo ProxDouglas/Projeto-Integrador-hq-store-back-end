@@ -2,10 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { TypeFinder } from '../../core/enum/TypeFinder';
 
 export default class ComicsPagesQueryDto {
-    @ApiProperty({ required: false })
+    // @ApiProperty({ required: false })
     take: number;
 
-    @ApiProperty({ required: false })
+    // @ApiProperty({ required: false })
     skip: number;
 
     @ApiProperty({

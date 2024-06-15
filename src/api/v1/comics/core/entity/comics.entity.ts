@@ -4,6 +4,7 @@ import {
     JoinTable,
     ManyToMany,
     OneToMany,
+    OneToOne,
     PrimaryGeneratedColumn,
 } from 'typeorm';
 import { IsInt, Min, Max, Length, IsNotEmpty, IsNumber } from 'class-validator';
@@ -59,8 +60,8 @@ export default class Comics {
     @Column({ name: 'preco', type: 'float', nullable: false })
     price: number;
 
-    @OneToMany(() => ComicsImage, (comicsImage) => comicsImage.comics)
-    images: ComicsImage[];
+    @OneToOne(() => ComicsImage, (comicsImage) => comicsImage.comics)
+    image: ComicsImage;
 
     @ManyToMany(() => Collection)
     @JoinTable({
@@ -85,7 +86,7 @@ export default class Comics {
         this.publisher = comics?.publisher;
         this.age_rating = comics?.age_rating;
         this.price = comics?.price;
-        this.images = comics?.images;
+        this.image = comics?.image;
         this.collection = comics?.collection;
         this.carrinho = comics?.carrinho;
     }

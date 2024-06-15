@@ -2,7 +2,7 @@ import {
     Column,
     Entity,
     JoinColumn,
-    ManyToOne,
+    OneToOne,
     PrimaryGeneratedColumn,
 } from 'typeorm';
 import Comics from '../../../comics/core/entity/comics.entity';
@@ -20,7 +20,7 @@ export default class ComicsImage {
     @Column({ name: 'hq_id', type: 'integer', nullable: false })
     comics_id: number;
 
-    @ManyToOne(() => Comics, (comics) => comics.images)
+    @OneToOne(() => Comics, (comics) => comics.image)
     @JoinColumn({ name: 'hq_id', referencedColumnName: 'id' })
     comics: Comics;
 }
