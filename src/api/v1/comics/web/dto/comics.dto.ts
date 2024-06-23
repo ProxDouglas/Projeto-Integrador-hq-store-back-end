@@ -48,7 +48,6 @@ export default class ComicsDto {
 
     @ApiProperty()
     @IsInt()
-    @IsPositive()
     @Min(0)
     @Max(18)
     @IsNotEmpty()

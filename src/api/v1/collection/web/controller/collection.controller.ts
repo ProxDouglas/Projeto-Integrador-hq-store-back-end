@@ -25,9 +25,9 @@ export default class CollectionController {
         this.collectionService = collectionService;
     }
 
-    @Get()
-    list(): Promise<Collection[]> {
-        return this.collectionService.list();
+    @Get('comics/:name')
+    getByComicsName(@Param('name') name: string): Promise<Collection[]> {
+        return this.collectionService.getByComicsName(name);
     }
 
     @Get(':id')

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import Collection from '../entity/collection.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Like, Repository } from 'typeorm';
 import CollectionCreateDto from '../../web/dto/collection_create.dto';
 import CollectionCreateMapper from '../../web/mapper/collection_create.mapper';
 import CollectionUpdateDto from '../../web/dto/collection_update.dto';
@@ -26,14 +26,29 @@ export default class CollectionService {
         this.collectionCreateMapper = collectionCreateMapper;
     }
 
-    list(): Promise<Collection[]> {
-        return this.collectionRepository.find();
-    }
-
     getById(id: number): Promise<Collection> {
         return this.collectionRepository.findOneOrFail({
             where: { id },
         });
+    }
+
+    getByComicsName(comicsName: string): Promise<Collection[]> {
+        return this.collectionRepository
+            .createQueryBuilder('collections')
+            .select([
+                'collections.id',
+                'collections.name',
+                'collections.description',
+            ])
+            .leftJoin('collections.comics', 'comics_collection', null, [
+                'comics_collection.id',
+            ])
+            .where('comics_collection.name LIKE :name', {
+                name: '%' + comicsName + '%',
+            })
+            .distinct(true)
+            .limit(40)
+            .getMany();
     }
 
     create(
