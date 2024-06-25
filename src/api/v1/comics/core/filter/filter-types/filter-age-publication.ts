@@ -1,5 +1,5 @@
 import { SelectQueryBuilder } from 'typeorm';
-import FilterFactory from '../interface/filter-factory';
+import FilterFactory from '../interface/filter-types';
 import Comics from '../../entity/comics.entity';
 import ComicsPagesQueryDto from '../../../web/dto/comics-pages-query.dto';
 import ResponseException from '../../../../exception/response.exception';

@@ -10,5 +10,6 @@ import AWSConnectorS3 from './core/connector/aws-s3.connector';
     imports: [TypeOrmModule.forFeature([ComicsImage, Comics])],
     controllers: [ComicsImageController],
     providers: [ComicsImageService, AWSConnectorS3],
+    exports: [AWSConnectorS3],
 })
 export default class ComicsImageModule {}

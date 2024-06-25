@@ -1,33 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
+import AWSConnectorS3 from '../../../comics-image/core/connector/aws-s3.connector';
 import { DataSource } from 'typeorm';
-import Comics from '../entity/comics.entity';
+import { InjectDataSource } from '@nestjs/typeorm';
 import ComicsPagesDto from '../../web/dto/comics-pages.dto';
+import FilterFactory from './filter-factory';
+import Comics from '../entity/comics.entity';
 import ComicsPagesQueryDto from '../../web/dto/comics-pages-query.dto';
-import { TypeFinder } from '../enum/TypeFinder';
-import FilterName from '../filter/filter-types/filter-name';
-import FilterFactory from '../filter/interface/filter-types';
-import FilterAgePublication from '../filter/filter-types/filter-age-publication';
-import FilterCollection from '../filter/filter-types/filter-collection';
-import ResponseException from '../../../exception/response.exception';
-import AWSConnectorS3 from 'src/api/v1/comics-image/core/connector/aws-s3.connector';
 
 @Injectable()
-export default class ComicsPagesService {
-    private readonly filterMap: Map<TypeFinder, FilterFactory>;
+export default class FilterPages {
     private readonly connectorS3: AWSConnectorS3;
+    private readonly filterFactory: FilterFactory;
 
     constructor(
         @InjectDataSource()
         private readonly dataSource: DataSource,
         connectorS3: AWSConnectorS3,
+        filterFactory: FilterFactory,
     ) {
         this.connectorS3 = connectorS3;
-        this.filterMap = new Map<TypeFinder, FilterFactory>([
-            [TypeFinder.NAME, new FilterName()],
-            [TypeFinder.YEAR_PUBLICATION, new FilterAgePublication()],
-            [TypeFinder.COLLECTION, new FilterCollection()],
-        ]);
+        this.filterFactory = filterFactory;
     }
 
     async listPages(
@@ -42,22 +34,11 @@ export default class ComicsPagesService {
             .take(comicsPagesQueryDto.take)
             .skip(comicsPagesQueryDto.skip * comicsPagesQueryDto.take);
 
-        const filterFactory = this.filterMap.get(
+        const filter = this.filterFactory.createFilter(
             comicsPagesQueryDto.typeFinder,
         );
 
-        if (filterFactory) {
-            try {
-                queryBuilder = filterFactory.generateFinder(
-                    comicsPagesQueryDto,
-                    queryBuilder,
-                );
-            } catch (error) {
-                return Promise.reject(
-                    new ResponseException(error.statusCode, error.message),
-                );
-            }
-        }
+        queryBuilder = filter.generateFinder(comicsPagesQueryDto, queryBuilder);
 
         return queryBuilder.getManyAndCount().then(([comics, comicsQtd]) => {
             const comicsPageDto = new ComicsPagesDto();
@@ -71,7 +52,7 @@ export default class ComicsPagesService {
         });
     }
 
-    async gerarUrl(comicsPageDto: ComicsPagesDto) {
+    private async gerarUrl(comicsPageDto: ComicsPagesDto) {
         return Promise.all(
             comicsPageDto.comics.map(async (comics) => {
                 if (comics.image)

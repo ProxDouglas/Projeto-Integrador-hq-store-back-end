@@ -6,23 +6,23 @@ import ComicsDto from '../../web/dto/comics.dto';
 import ComicsNotFound from '../../web/exception/comics-not-found';
 import ComicsPagesDto from '../../web/dto/comics-pages.dto';
 import ComicsPagesQueryDto from '../../web/dto/comics-pages-query.dto';
-import ComicsPagesService from './comics-pages.service';
 import AWSConnectorS3 from '../../../comics-image/core/connector/aws-s3.connector';
+import FilterPages from '../filter/filter-pages';
 
 @Injectable()
 export default class ComicsService {
     private readonly comicsRepository: Repository<Comics>;
-    private readonly comicsPagesService: ComicsPagesService;
+    private readonly filterPages: FilterPages;
     private readonly connectorS3: AWSConnectorS3;
 
     constructor(
         @InjectRepository(Comics)
         comicsRepository: Repository<Comics>,
-        comicsPagesService: ComicsPagesService,
+        filterPages: FilterPages,
         connectorS3: AWSConnectorS3,
     ) {
         this.comicsRepository = comicsRepository;
-        this.comicsPagesService = comicsPagesService;
+        this.filterPages = filterPages;
         this.connectorS3 = connectorS3;
     }
 
@@ -33,7 +33,7 @@ export default class ComicsService {
     async listPages(
         comicsPagesQueryDto: ComicsPagesQueryDto,
     ): Promise<ComicsPagesDto> {
-        return this.comicsPagesService.listPages(comicsPagesQueryDto);
+        return this.filterPages.listPages(comicsPagesQueryDto);
     }
 
     async getById(id: number): Promise<Comics> {

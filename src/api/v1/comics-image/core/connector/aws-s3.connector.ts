@@ -6,7 +6,9 @@ import {
     DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export default class AWSConnectorS3 {
     private readonly s3Client: S3Client;
     private readonly bucketName: string;
