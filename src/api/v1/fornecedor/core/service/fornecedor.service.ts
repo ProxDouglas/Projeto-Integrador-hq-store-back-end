@@ -20,7 +20,7 @@ export default class FornecedorService {
     async getById(id: number): Promise<Fornecedor> {
         return this.fornecedorRepository
             .findOneOrFail({
-                where: { id: id }
+                where: { id: id },
             })
             .catch(() => Promise.reject(new FornecedorNotFound(id)));
     }
@@ -29,23 +29,22 @@ export default class FornecedorService {
         return this.fornecedorRepository.save(fornecedorDto);
     }
 
-    public async update(id: number, fornecedorDto: FornecedorDto): Promise<FornecedorDto> {
+    public async update(
+        id: number,
+        fornecedorDto: FornecedorDto,
+    ): Promise<FornecedorDto> {
         return await this.fornecedorRepository
             .findOneBy({ id })
             .then((fornecedor) => {
                 if (fornecedorDto.name) fornecedor.name = fornecedorDto.name;
 
-                if (fornecedorDto.cnpj)
-                    fornecedor.cnpj = fornecedorDto.cnpj;
+                if (fornecedorDto.cnpj) fornecedor.cnpj = fornecedorDto.cnpj;
 
-                if (fornecedorDto.pais)
-                    fornecedor.pais = fornecedorDto.pais;
+                if (fornecedorDto.pais) fornecedor.pais = fornecedorDto.pais;
 
                 return this.fornecedorRepository.save(fornecedor);
             })
-            .catch(() => {
-                throw new FornecedorNotFound(id);
-            });
+            .catch(() => Promise.reject(new FornecedorNotFound(id)));
     }
 
     public async delete(id: number) {

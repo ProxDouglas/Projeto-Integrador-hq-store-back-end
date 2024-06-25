@@ -20,7 +20,7 @@ export default class AutorService {
     async getById(id: number): Promise<Autor> {
         return this.autorRepository
             .findOneOrFail({
-                where: { id: id }
+                where: { id: id },
             })
             .catch(() => Promise.reject(new AutorNotFound(id)));
     }
@@ -37,9 +37,7 @@ export default class AutorService {
 
                 return this.autorRepository.save(autor);
             })
-            .catch(() => {
-                throw new AutorNotFound(id);
-            });
+            .catch(() => Promise.reject(new AutorNotFound(id)));
     }
 
     public async delete(id: number) {

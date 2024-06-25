@@ -7,18 +7,23 @@ import ComicsNotFound from '../../web/exception/comics-not-found';
 import ComicsPagesDto from '../../web/dto/comics-pages.dto';
 import ComicsPagesQueryDto from '../../web/dto/comics-pages-query.dto';
 import ComicsPagesService from './comics-pages.service';
+import AWSConnectorS3 from '../../../comics-image/core/connector/aws-s3.connector';
 
 @Injectable()
 export default class ComicsService {
+    private readonly comicsRepository: Repository<Comics>;
     private readonly comicsPagesService: ComicsPagesService;
+    private readonly connectorS3: AWSConnectorS3;
 
     constructor(
         @InjectRepository(Comics)
-        private readonly comicsRepository: Repository<Comics>,
-        // private readonly comicsMapper: ComicsMapper,
+        comicsRepository: Repository<Comics>,
         comicsPagesService: ComicsPagesService,
+        connectorS3: AWSConnectorS3,
     ) {
+        this.comicsRepository = comicsRepository;
         this.comicsPagesService = comicsPagesService;
+        this.connectorS3 = connectorS3;
     }
 
     async list(): Promise<Comics[]> {
@@ -38,9 +43,16 @@ export default class ComicsService {
                 select: {
                     image: {
                         id: true,
+                        name: true,
                     },
                 },
                 relations: { image: true, collection: true },
+            })
+            .then(async (comics) => {
+                await this.connectorS3
+                    .getFile(comics.image.name)
+                    .then((url) => (comics.image.url = url));
+                return comics;
             })
             .catch(() => Promise.reject(new ComicsNotFound(id)));
     }
@@ -73,9 +85,7 @@ export default class ComicsService {
 
                 return this.comicsRepository.save(comics);
             })
-            .catch(() => {
-                throw new ComicsNotFound(id);
-            });
+            .catch(() => Promise.reject(new ComicsNotFound(id)));
     }
 
     public async delete(id: number) {

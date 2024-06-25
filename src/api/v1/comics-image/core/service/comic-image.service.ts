@@ -30,9 +30,11 @@ export default class ComicsImageService {
             .findOneOrFail({ where: { id: id }, select: { name: true } })
             .then((comicsImage) => this.s3Connector.getFile(comicsImage.name))
             .then((url) => url)
-            .catch(() => {
-                throw new NotFoundException('Comics image not Found!');
-            });
+            .catch(() =>
+                Promise.reject(
+                    new NotFoundException('Comics image not Found!'),
+                ),
+            );
     }
 
     public create(

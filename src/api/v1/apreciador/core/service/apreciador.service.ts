@@ -20,7 +20,7 @@ export default class ApreciadorService {
     async getById(id: number): Promise<Apreciador> {
         return this.apreciadorRepository
             .findOneOrFail({
-                where: { id: id }
+                where: { id: id },
             })
             .catch(() => Promise.reject(new ApreciadorNotFound(id)));
     }
@@ -29,7 +29,10 @@ export default class ApreciadorService {
         return this.apreciadorRepository.save(apreciadorDto);
     }
 
-    public async update(id: number, apreciadorDto: ApreciadorDto): Promise<ApreciadorDto> {
+    public async update(
+        id: number,
+        apreciadorDto: ApreciadorDto,
+    ): Promise<ApreciadorDto> {
         return await this.apreciadorRepository
             .findOneBy({ id })
             .then((apreciador) => {
@@ -37,9 +40,7 @@ export default class ApreciadorService {
 
                 return this.apreciadorRepository.save(apreciador);
             })
-            .catch(() => {
-                throw new ApreciadorNotFound(id);
-            });
+            .catch(() => Promise.reject(new ApreciadorNotFound(id)));
     }
 
     public async delete(id: number) {
