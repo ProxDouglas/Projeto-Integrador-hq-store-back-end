@@ -23,7 +23,8 @@ export class FileSizeValidationPipe implements PipeTransform {
             if (comicsImageDto.size > oneKb) return false;
             if (
                 comicsImageDto.mimetype !== 'image/jpeg' &&
-                comicsImageDto.mimetype !== 'image/png'
+                comicsImageDto.mimetype !== 'image/png' &&
+                comicsImageDto.mimetype !== 'image/webp'
             )
                 return false;
 
