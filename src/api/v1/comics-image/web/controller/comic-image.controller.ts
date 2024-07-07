@@ -10,13 +10,12 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import ComicsImageService from '../../core/service/comic-image.service';
-import ComicsImage from '../../core/entity/comic-image.entity';
 import ResponseStatusSave from 'src/api/v1/response-status/response-status-save';
 import ResponseStatusDefault from 'src/api/v1/response-status/response-status-default';
 import ComicsImageNotFound from '../exception/comics-image-not-found';
 import { FileSizeValidationPipe } from '../Pipe/file-size.pipe';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import ComicsImageDto from '../dto/comic-image.dto';
+import CreateComicsImageDto from '../dto/create-comic-image.dto';
 @ApiTags('images')
 @Controller('/api/comics/images')
 export default class ComicsImageController {
@@ -46,7 +45,7 @@ export default class ComicsImageController {
         @Param('id', ParseIntPipe)
         id: number,
         @UploadedFiles(new FileSizeValidationPipe())
-        comicsImage: Array<ComicsImageDto>,
+        comicsImage: Array<CreateComicsImageDto>,
     ): Promise<ResponseStatusSave> {
         return this.comicsImageService
             .create(id, comicsImage)

@@ -8,7 +8,7 @@ import FilterTypes from './interface/filter-types';
 
 @Injectable()
 export default class FilterFactory {
-    createFilter(type: TypeFinder): FilterTypes {
+    build(type: TypeFinder): FilterTypes {
         switch (type) {
             case TypeFinder.NAME:
                 return new FilterName();

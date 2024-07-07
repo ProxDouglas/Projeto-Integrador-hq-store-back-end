@@ -1,6 +1,6 @@
 import { IsInt, Min, Max, Length, IsNotEmpty, IsNumber } from 'class-validator';
 
-export default class ComicsImageDto {
+export default class CreateComicsImageDto {
     id: number;
 
     @IsNotEmpty()

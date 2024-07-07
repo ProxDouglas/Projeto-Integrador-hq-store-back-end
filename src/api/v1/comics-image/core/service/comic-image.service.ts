@@ -5,7 +5,7 @@ import ComicsImage from '../entity/comic-image.entity';
 import Comics from '../../../comics/core/entity/comics.entity';
 import ComicsNotFound from '../../../comics/web/exception/comics-not-found';
 import AWSConnectorS3 from '../connector/aws-s3.connector';
-import ComicsImageDto from '../../web/dto/comic-image.dto';
+import CreateComicsImageDto from '../../web/dto/create-comic-image.dto';
 
 @Injectable()
 export default class ComicsImageService {
@@ -37,9 +37,13 @@ export default class ComicsImageService {
             );
     }
 
+    public getByName(fileName: string){
+        return this.s3Connector.getFile(fileName);
+    }
+
     public create(
         id: number,
-        comicsImageDto: ComicsImageDto[],
+        createComicsImageDto: CreateComicsImageDto[],
     ): Promise<boolean> {
         const today = new Date();
         const comicsImages = new Array<ComicsImage>();
@@ -51,7 +55,7 @@ export default class ComicsImageService {
             })
             .then((comics) => {
                 return Promise.all(
-                    comicsImageDto.map((file) => {
+                    createComicsImageDto.map((file) => {
                         const newComicsImage = new ComicsImage();
 
                         newComicsImage.comics = comics;
@@ -61,7 +65,10 @@ export default class ComicsImageService {
                             '-' +
                             comics.name.replaceAll(' ', '_') +
                             '-' +
-                            comicsImageDto[0].originalname.replaceAll(' ', '_');
+                            createComicsImageDto[0].originalname.replaceAll(
+                                ' ',
+                                '_',
+                            );
 
                         comicsImages.push(newComicsImage);
 

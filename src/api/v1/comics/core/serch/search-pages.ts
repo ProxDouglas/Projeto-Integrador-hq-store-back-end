@@ -1,24 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import AWSConnectorS3 from '../../../comics-image/core/connector/aws-s3.connector';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import ComicsPagesDto from '../../web/dto/comics-pages.dto';
-import FilterFactory from './filter-factory';
+import FilterFactory from '../filter/filter-factory';
 import Comics from '../entity/comics.entity';
 import ComicsPagesQueryDto from '../../web/dto/comics-pages-query.dto';
 
 @Injectable()
-export default class FilterPages {
-    private readonly connectorS3: AWSConnectorS3;
+export default class SearchPages {
     private readonly filterFactory: FilterFactory;
 
     constructor(
         @InjectDataSource()
         private readonly dataSource: DataSource,
-        connectorS3: AWSConnectorS3,
         filterFactory: FilterFactory,
     ) {
-        this.connectorS3 = connectorS3;
         this.filterFactory = filterFactory;
     }
 
@@ -34,9 +30,7 @@ export default class FilterPages {
             .take(comicsPagesQueryDto.take)
             .skip(comicsPagesQueryDto.skip * comicsPagesQueryDto.take);
 
-        const filter = this.filterFactory.createFilter(
-            comicsPagesQueryDto.typeFinder,
-        );
+        const filter = this.filterFactory.build(comicsPagesQueryDto.typeFinder);
 
         queryBuilder = filter.generateFinder(comicsPagesQueryDto, queryBuilder);
 
@@ -47,29 +41,8 @@ export default class FilterPages {
                 comicsQtd,
                 comicsPagesQueryDto.take,
             );
-            return this.gerarUrl(comicsPageDto);
-            // return comicsPageDto;
+            return comicsPageDto;
         });
-    }
-
-    private async gerarUrl(comicsPageDto: ComicsPagesDto) {
-        return Promise.all(
-            comicsPageDto.comics.map(async (comics) => {
-                if (comics.image)
-                    return this.connectorS3
-                        .getFile(comics.image.name)
-                        .then((url) => url)
-                        .catch(() => '');
-                return '';
-            }),
-        )
-            .then((imagesUrl) => {
-                comicsPageDto.comics.forEach((comics, index) => {
-                    if (comics.image) comics.image.url = imagesUrl[index];
-                });
-                return comicsPageDto;
-            })
-            .catch(() => comicsPageDto);
     }
 
     private calcularPaginas(dividendo: number, divisor: number) {

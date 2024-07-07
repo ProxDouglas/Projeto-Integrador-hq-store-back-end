@@ -10,12 +10,12 @@ import {
     Query,
 } from '@nestjs/common';
 import ComicsService from '../../core/service/comics.service';
-import ComicsDto from '../dto/comics.dto';
 import Comics from '../../core/entity/comics.entity';
 import ComicsPagesDto from '../dto/comics-pages.dto';
 import ComicsPagesQueryDto from '../dto/comics-pages-query.dto';
 import { ComicsPagesQueryValidationPipe } from '../Pipe/comics-pages-query-pipe';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import CreateComicsDto from '../dto/create-comics.dto';
 
 @ApiTags('comics')
 @Controller('api/comics')
@@ -26,10 +26,6 @@ export default class ComicsController {
         this.comicsService = comicsService;
     }
 
-    @Get()
-    list(): Promise<Comics[]> {
-        return this.comicsService.list();
-    }
 
     @Get('pages/take/:take/skip/:skip/')
     listPages(
@@ -58,19 +54,19 @@ export default class ComicsController {
     @ApiResponse({
         status: 201,
         description: 'Nova hq adicionada.',
-        type: ComicsDto,
+        type: CreateComicsDto,
     })
-    create(@Body() comicsDto: ComicsDto): Promise<ComicsDto> {
-        return this.comicsService.create(comicsDto);
+    create(@Body() createComicsDto: CreateComicsDto): Promise<CreateComicsDto> {
+        return this.comicsService.create(createComicsDto);
     }
 
     @Put(':id')
     update(
         @Param('id', ParseIntPipe)
         id: number,
-        @Body() comicsDto: ComicsDto,
-    ): Promise<ComicsDto> {
-        return this.comicsService.update(id, comicsDto);
+        @Body() createComicsDto: CreateComicsDto,
+    ): Promise<CreateComicsDto> {
+        return this.comicsService.update(id, createComicsDto);
     }
 
     @Delete(':id')
