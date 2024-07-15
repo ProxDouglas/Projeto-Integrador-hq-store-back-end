@@ -10,12 +10,16 @@ import FornecedorModule from './api/v1/fornecedor/fornecedor.module';
 import AutorModule from './api/v1/autor/autor.module';
 import ApreciadorModule from './api/v1/apreciador/apreciador.module';
 
-
 // const modulesDir = join(__dirname, 'api/v1');
 @Module({
     imports: [
         ConfigModule.forRoot({
-            envFilePath: ['.env.development.local', '.env.development'],
+            envFilePath: [
+                '.env.development.local',
+                '.env.development',
+                '.env',
+                '.env.production',
+            ],
         }),
         TypeOrmModule.forRoot({
             type: 'postgres',
