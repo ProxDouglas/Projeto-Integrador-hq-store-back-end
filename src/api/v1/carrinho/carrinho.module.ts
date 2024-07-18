@@ -1,12 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import Collection from './core/entity/carrinho.entity';
-import CollectionController from './web/controller/carrinho.controller';
-// import CollectionService from './core/service/carrinho.service';
-import Comics from '../comics/core/entity/comics.entity';
+import Carrinho from './core/entity/carrinho.entity';
+import CarrinhoItem from './core/entity/carrinho-item.entity';
+import CarrinhoController from './web/controller/carrinho.controller';
+import CarrinhoService from './core/service/carrinho.service';
+
+
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Collection, Comics])],
-    controllers: [CollectionController],
+    imports: [TypeOrmModule.forFeature([Carrinho, CarrinhoItem])],
+    controllers: [CarrinhoController],
+    providers: [CarrinhoService],
 })
-export default class CollectionModule {}
+export default class CarrinhoModule {}

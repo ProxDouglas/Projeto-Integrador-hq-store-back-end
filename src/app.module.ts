@@ -9,6 +9,7 @@ import CollectionModule from './api/v1/collection/collection.module';
 import FornecedorModule from './api/v1/fornecedor/fornecedor.module';
 import AutorModule from './api/v1/autor/autor.module';
 import ApreciadorModule from './api/v1/apreciador/apreciador.module';
+import CarrinhoModule from './api/v1/carrinho/carrinho.module';
 
 // const modulesDir = join(__dirname, 'api/v1');
 @Module({
@@ -44,6 +45,7 @@ import ApreciadorModule from './api/v1/apreciador/apreciador.module';
         FornecedorModule,
         AutorModule,
         ApreciadorModule,
+        CarrinhoModule,
         // ...importModules(modulesDir),
     ],
     controllers: [],

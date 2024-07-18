@@ -1,13 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import Carrinho from '../entity/carrinho.entity';
+import CarrinhoDto from '../../web/dto/carrinho.dto';
 import { DataSource, Repository } from 'typeorm';
+import CarrinhoItem from '../entity/carrinho-item.entity';
 // import CarrinhoCreateDto from '../../web/dto/carrinho_create.dto';
 // import CarrinhoUpdateDto from '../../web/dto/carrinho_update.dto';
-// import CarrinhoNotFound from '../../web/exception/carrinho-not-found';
-// import Comics from 'src/api/v1/comics/core/entity/comics.entity';
-// import ComicsAssociateDto from 'src/api/v1/comics/web/dto/comics-associate.dto';
-// import ResponseException from 'src/api/v1/exception/response.exception';
+import CarrinhoNotFound from '../../web/exception/carrinho-not-found';
+import CarrinhoItemNotFound from '../../web/exception/carrinho-item-not-found';
+import CarrinhoItemDto from '../../web/dto/carrinho-item.dto';
+import Apreciador from 'src/api/v1/apreciador/core/entity/apreciador.entity';
 
 @Injectable()
 export default class CarrinhoService {
@@ -18,6 +20,8 @@ export default class CarrinhoService {
         private readonly carrinhoRepository: Repository<Carrinho>,
         @InjectDataSource()
         private readonly dataSource: DataSource,
+        @InjectRepository(CarrinhoItem)
+        private readonly carrinhoItemRepository: Repository<CarrinhoItem>,
     ) {}
 
     list(apreciador_id: number): Promise<Carrinho[]> {
@@ -42,10 +46,70 @@ export default class CarrinhoService {
                 this.carrinhoCreateMapper.toDto(carrinho),
             );
     }
+    */
 
-    addComics(id: number, comicsAssociateDto: ComicsAssociateDto[]) {
-        return this.dataSource
-            .getRepository('hq_colecao')
+    public async create(carrinhoDto: CarrinhoDto): Promise<CarrinhoDto> {
+        return this.carrinhoRepository.save(carrinhoDto);
+    }
+
+    async getById(id: number): Promise<Carrinho> {
+        return this.carrinhoRepository
+            .findOneOrFail({
+                where: { id: id },
+                select: {
+                    itens: true,
+                },
+                relations: { itens: true },
+            })
+            .then(async (carrinho) => {
+                return carrinho;
+            })
+            .catch(() => Promise.reject(new CarrinhoNotFound(id)));
+    }
+
+/*
+    async addItemCarrinho(
+        carrinhoItemDto: CarrinhoItemDto,
+    ) {
+        let carrinhoApreciador = null;
+        try {
+            carrinhoApreciador = await this.carrinhoRepository.find({
+                where: { id: carrinho.id },
+            });
+        } catch (error) {
+            return Promise.reject(new CarrinhoNotFound(carrinho.id));
+        }
+
+        if (!carrinhoApreciador) {
+            return Promise.reject(new CarrinhoNotFound(carrinho.id));
+        }
+
+        try {
+            return await this.carrinhoItemRepository.create({
+                carrinho_id: carrinho.id,
+                hq_id,
+                quantidade,
+            });
+        } catch (error) {
+            return Promise.reject(new CarrinhoItemNotFound(carrinho.id));
+        }
+    }
+*/
+
+    /*
+    adicionarItem(carrinho_id: number, carrinhoItem: CarrinhoItem) {
+        this.carrinhoRepository
+            .find({
+                where: { id: carrinho_id },
+            })
+            .then((carrinho) => {
+                if (!carrinho) {
+                    this.carrinhoRepository.create({ apreciador_id });
+                }
+                return this.carrinhoItemRepository.create(carrinhoItem);
+            });
+        return this.carrinhoRepository
+            .create('carrinhoItem')
             .createQueryBuilder('hq_colecao')
             .insert()
             .values(
@@ -66,7 +130,8 @@ export default class CarrinhoService {
             });
     }
 
-    removeComics(id: number, comics_id: number) {
+    
+    removerItem(id: number, comics_id: number) {
         return this.dataSource
             .getRepository('hq_colecao')
             .createQueryBuilder('hq_colecao')

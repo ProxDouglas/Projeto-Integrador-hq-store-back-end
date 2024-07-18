@@ -37,7 +37,8 @@ export default class ApreciadorService {
             .findOneBy({ id })
             .then((apreciador) => {
                 if (apreciadorDto.nome) apreciador.nome = apreciadorDto.nome;
-
+                if (apreciadorDto.cpf) apreciador.cpf = apreciadorDto.cpf;
+                if (apreciadorDto.email) apreciador.email = apreciadorDto.email;
                 return this.apreciadorRepository.save(apreciador);
             })
             .catch(() => Promise.reject(new ApreciadorNotFound(id)));
