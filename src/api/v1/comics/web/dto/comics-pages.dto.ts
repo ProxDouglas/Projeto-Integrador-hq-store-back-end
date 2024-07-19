@@ -9,4 +9,9 @@ export default class ComicsPagesDto {
 
     @ApiProperty()
     comics: Comics[];
+
+    constructor(comicsPagesDto?: Partial<ComicsPagesDto>) {
+        this.pages = comicsPagesDto?.pages ?? 0;
+        this.comics = comicsPagesDto?.comics ?? [];
+    }
 }

@@ -91,11 +91,14 @@ describe('ComicsController', () => {
         it('should return list of pages comics successfully', async () => {
             const comicsPagesQueryDto = new ComicsPagesQueryDto();
 
-            comicsPagesQueryDto.take = 2;
-            comicsPagesQueryDto.skip = 0;
+            const take = 2;
+            const skip = 2;
 
-            const result =
-                await comicsController.listPages(comicsPagesQueryDto);
+            const result = await comicsController.listPages(
+                take,
+                skip,
+                comicsPagesQueryDto,
+            );
 
             expect(result).toEqual(comicsListPages);
         });

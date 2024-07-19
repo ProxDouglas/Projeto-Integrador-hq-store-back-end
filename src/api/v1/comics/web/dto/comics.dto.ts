@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import ComicsImageDto from 'src/api/v1/comics-image/web/dto/comics-image.dto';
+import ComicsImageDto from '../../../comics-image/web/dto/comics-image.dto';
 
 export default class ComicsDto {
     @ApiProperty()

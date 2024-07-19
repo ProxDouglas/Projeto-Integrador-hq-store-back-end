@@ -26,7 +26,6 @@ export default class ComicsController {
         this.comicsService = comicsService;
     }
 
-
     @Get('pages/take/:take/skip/:skip/')
     listPages(
         @Param('take', ParseIntPipe)

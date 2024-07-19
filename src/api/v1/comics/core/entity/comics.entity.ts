@@ -10,7 +10,7 @@ import {
 import { IsInt, Min, Max, Length, IsNotEmpty, IsNumber } from 'class-validator';
 import ComicsImage from '../../../comics-image/core/entity/comic-image.entity';
 import Collection from '../../../collection/core/entity/collection.entity';
-import CarrinhoItem from 'src/api/v1/carrinho/core/entity/carrinho-item.entity';
+import CarrinhoItem from '../../../carrinho/core/entity/carrinho-item.entity';
 
 @Entity({ name: 'hq' })
 export default class Comics {

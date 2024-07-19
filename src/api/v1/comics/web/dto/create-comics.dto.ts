@@ -59,4 +59,14 @@ export default class CreateComicsDto {
     @IsNotEmpty()
     price: number;
 
+    constructor(createComicsDto?: Partial<CreateComicsDto>) {
+        this.id = createComicsDto?.id ?? 0;
+        this.name = createComicsDto?.name ?? '';
+        this.year_publication = createComicsDto?.year_publication ?? 0;
+        this.month_publication = createComicsDto?.month_publication ?? 0;
+        this.number_pages = createComicsDto?.number_pages ?? 0;
+        this.publisher = createComicsDto?.publisher ?? '';
+        this.age_rating = createComicsDto?.age_rating ?? 0;
+        this.price = createComicsDto?.price ?? 0;
+    }
 }
