@@ -8,7 +8,7 @@ export default class FilterName implements FilterFactory {
         selectQueryBuilder: SelectQueryBuilder<Comics>,
     ): SelectQueryBuilder<Comics> {
         if (comicsPageDto.keyword.length === 0) return selectQueryBuilder;
-        return selectQueryBuilder.where('hq.name LIKE :name', {
+        return selectQueryBuilder.where('hq.name ILIKE :name', {
             name: `%${comicsPageDto.keyword[0]}%`,
         });
     }
