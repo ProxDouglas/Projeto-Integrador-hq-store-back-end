@@ -43,7 +43,7 @@ export default class CollectionService {
             .leftJoin('collections.comics', 'comics_collection', null, [
                 'comics_collection.id',
             ])
-            .where('comics_collection.name LIKE :name', {
+            .where('comics_collection.name ILIKE :name', {
                 name: '%' + comicsName + '%',
             })
             .distinct(true)
