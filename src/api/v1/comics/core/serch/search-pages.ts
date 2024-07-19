@@ -24,9 +24,8 @@ export default class SearchPages {
         let queryBuilder = this.dataSource
             .getRepository(Comics)
             .createQueryBuilder('hq')
-            .leftJoin('hq.image', 'hq_imagem', null, ['hq_imagem.id'])
+            .innerJoin('hq.image', 'hq_imagem', null, ['hq_imagem.id'])
             .addSelect(['hq_imagem.id', 'hq_imagem.name'])
-            .leftJoinAndSelect('hq.collection', 'colecao')
             .take(comicsPagesQueryDto.take)
             .skip(comicsPagesQueryDto.skip * comicsPagesQueryDto.take);
 
