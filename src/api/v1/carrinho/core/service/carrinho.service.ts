@@ -67,34 +67,70 @@ export default class CarrinhoService {
             .catch(() => Promise.reject(new CarrinhoNotFound(id)));
     }
 
-/*
-    async addItemCarrinho(
-        carrinhoItemDto: CarrinhoItemDto,
-    ) {
+    async addItemCarrinho(carrinhoItemDto: CarrinhoItemDto) {
         let carrinhoApreciador = null;
         try {
-            carrinhoApreciador = await this.carrinhoRepository.find({
-                where: { id: carrinho.id },
+            carrinhoApreciador = await this.carrinhoRepository.findOne({
+                where: { id: carrinhoItemDto.carrinho_id },
             });
         } catch (error) {
-            return Promise.reject(new CarrinhoNotFound(carrinho.id));
+            return Promise.reject(
+                new CarrinhoNotFound(carrinhoItemDto.carrinho_id),
+            );
         }
 
         if (!carrinhoApreciador) {
-            return Promise.reject(new CarrinhoNotFound(carrinho.id));
+            return Promise.reject(
+                new CarrinhoNotFound(carrinhoItemDto.carrinho_id),
+            );
         }
 
         try {
-            return await this.carrinhoItemRepository.create({
-                carrinho_id: carrinho.id,
-                hq_id,
-                quantidade,
+            return await this.carrinhoItemRepository.save({
+                carrinho: { id: carrinhoItemDto.carrinho_id },
+                comics: { id: carrinhoItemDto.hq_id },
+                quantidade: carrinhoItemDto.quantidade,
             });
         } catch (error) {
-            return Promise.reject(new CarrinhoItemNotFound(carrinho.id));
+            return Promise.reject(
+                new CarrinhoItemNotFound(carrinhoItemDto.carrinho_id),
+            );
         }
     }
-*/
+
+    async deleteItemCarrinho(carrinhoItemDto: CarrinhoItemDto) {
+        let itemCarrinho = null;
+        try {
+            itemCarrinho = await this.carrinhoItemRepository.findOne({
+                where: {
+                    carrinho_id: carrinhoItemDto.carrinho_id,
+                    hq_id: carrinhoItemDto.hq_id,
+                },
+            });
+        } catch (error) {
+            return Promise.reject(
+                new CarrinhoItemNotFound(carrinhoItemDto.carrinho_id),
+            );
+        }
+
+        if (!itemCarrinho) {
+            return Promise.reject(
+                new CarrinhoItemNotFound(carrinhoItemDto.carrinho_id),
+            );
+        }
+
+        try {
+            return await this.carrinhoItemRepository.delete({
+                carrinho: { id: carrinhoItemDto.carrinho_id },
+                comics: { id: carrinhoItemDto.hq_id },
+                quantidade: carrinhoItemDto.quantidade,
+            });
+        } catch (error) {
+            return Promise.reject(
+                new CarrinhoItemNotFound(carrinhoItemDto.carrinho_id),
+            );
+        }
+    }
 
     /*
     adicionarItem(carrinho_id: number, carrinhoItem: CarrinhoItem) {

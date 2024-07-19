@@ -38,8 +38,8 @@ export default class CarrinhoController {
     listById(
         @Param('id', ParseIntPipe)
         id: number,
-    ): Promise<Carrinho[]> {
-        return this.carrinhoService.list(id);
+    ): Promise<Carrinho> {
+        return this.carrinhoService.getById(id);
     }
 
     @Post()
@@ -47,8 +47,23 @@ export default class CarrinhoController {
         return this.carrinhoService.create(carrinhoDto);
     }
 
-    // @Delete(':id')
-    // delete(@Param('id', ParseIntPipe) id: number): Promise<Carrinho> {
-    //     return this.carrinhoService.getById(id);
-    // }
+    @Post('item')
+    createItem(
+        @Body() carrinhoItemDto: CarrinhoItemDto,
+    ): Promise<CarrinhoItemDto> {
+        return this.carrinhoService.addItemCarrinho(carrinhoItemDto);
+    }
+
+/*
+    @Delete(':carrinho_id/:hq_id')
+    delete(
+        @Param('carrinho_id', ParseIntPipe) carrinho_id: number,
+        @Param('hq_id', ParseIntPipe) hq_id: number,
+    ): Promise<CarrinhoItem> {
+        const carrinhoItemDto = new CarrinhoItemDto();
+        carrinhoItemDto.carrinho_id = carrinho_id;
+        carrinhoItemDto.hq_id = hq_id;
+        return this.carrinhoService.deleteItemCarrinho(carrinhoItemDto);
+    }
+*/
 }
