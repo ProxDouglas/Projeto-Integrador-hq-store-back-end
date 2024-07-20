@@ -23,7 +23,7 @@ export default class FilterAgePublication implements FilterFactory {
         if (comicsPageDto.keyword.length === 2 && comicsPageDto.keyword[1])
             dataFinal = parseInt(comicsPageDto.keyword[1]);
 
-        return selectQueryBuilder.where(
+        return selectQueryBuilder.andWhere(
             'hq.year_publication BETWEEN :date_ini AND :date_end',
             {
                 date_ini: dataInicial,

@@ -3,6 +3,7 @@ import ComicsController from './comics.controller';
 import ComicsService from '../../core/service/comics.service';
 import Comics from '../../core/entity/comics.entity';
 import ComicsPagesQueryDto from '../dto/comics-pages-query.dto';
+import { TypeFinder } from '../../core/enum/TypeFinder';
 
 const comicsListPages = [
     new Comics({
@@ -91,13 +92,20 @@ describe('ComicsController', () => {
         it('should return list of pages comics successfully', async () => {
             const comicsPagesQueryDto = new ComicsPagesQueryDto();
 
+            comicsPagesQueryDto.typeFinder = TypeFinder.NAME;
+            comicsPagesQueryDto.keyword = ['Teste'];
+
+            const listComicsPagesQueryDto: ComicsPagesQueryDto[] = [];
+
+            listComicsPagesQueryDto.push(comicsPagesQueryDto);
+
             const take = 2;
             const skip = 2;
 
             const result = await comicsController.listPages(
                 take,
                 skip,
-                comicsPagesQueryDto,
+                listComicsPagesQueryDto,
             );
 
             expect(result).toEqual(comicsListPages);

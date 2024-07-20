@@ -161,10 +161,18 @@ describe('ComicsService', () => {
                 comicsPagesDto,
             );
 
-            comicsPagesQueryDto.take = 2;
-            comicsPagesQueryDto.skip = 0;
+            const listComicsPagesQueryDto: ComicsPagesQueryDto[] = [];
 
-            const result = await service.listPages(comicsPagesQueryDto);
+            listComicsPagesQueryDto.push(comicsPagesQueryDto);
+
+            const take = 10;
+            const skip = 0;
+
+            const result = await service.listPages(
+                take,
+                skip,
+                listComicsPagesQueryDto,
+            );
 
             expect(result).toBe(comicsPagesDto);
         });

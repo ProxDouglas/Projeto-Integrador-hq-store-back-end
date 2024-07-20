@@ -43,6 +43,7 @@ describe('SearchPages', () => {
         comicsRepository = dataSource.getRepository(Comics);
         queryBuilder = {
             leftJoin: jest.fn().mockReturnThis(),
+            innerJoin: jest.fn().mockReturnThis(),
             addSelect: jest.fn().mockReturnThis(),
             leftJoinAndSelect: jest.fn().mockReturnThis(),
             take: jest.fn().mockReturnThis(),
@@ -60,12 +61,14 @@ describe('SearchPages', () => {
     });
 
     it('should return a list of comics pages with FilterName', async () => {
-        const queryDto: ComicsPagesQueryDto = {
-            take: 10,
-            skip: 0,
-            typeFinder: TypeFinder.NAME,
-            keyword: ['Naruto'],
-        };
+        const take = 10;
+        const skip = 0;
+        const queryDto: ComicsPagesQueryDto[] = [
+            {
+                typeFinder: TypeFinder.NAME,
+                keyword: ['Naruto'],
+            },
+        ];
 
         const mockComics: Comics[] = [
             {
@@ -117,23 +120,25 @@ describe('SearchPages', () => {
             1,
         ]);
 
-        const result = await searchPages.listPages(queryDto);
+        const result = await searchPages.listPages(take, skip, queryDto);
 
         expect(result).toEqual(expectedResult);
         expect(filterFactory.build).toHaveBeenCalledWith(TypeFinder.NAME);
         expect(filterName.generateFinder).toHaveBeenCalledWith(
-            queryDto,
+            queryDto[0],
             queryBuilder,
         );
     });
 
     it('should return a list of comics pages with FilterEmpty', async () => {
-        const queryDto: ComicsPagesQueryDto = {
-            take: 10,
-            skip: 0,
-            typeFinder: undefined,
-            keyword: [],
-        };
+        const take = 10;
+        const skip = 0;
+        const queryDto: ComicsPagesQueryDto[] = [
+            {
+                typeFinder: undefined,
+                keyword: [],
+            },
+        ];
 
         const mockComics: Comics[] = [
             {
@@ -185,12 +190,12 @@ describe('SearchPages', () => {
             1,
         ]);
 
-        const result = await searchPages.listPages(queryDto);
+        const result = await searchPages.listPages(take, skip, queryDto);
 
         expect(result).toEqual(expectedResult);
         expect(filterFactory.build).toHaveBeenCalledWith(undefined);
         expect(filterEmpty.generateFinder).toHaveBeenCalledWith(
-            queryDto,
+            queryDto[0],
             queryBuilder,
         );
     });

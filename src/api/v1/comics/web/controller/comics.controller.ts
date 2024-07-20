@@ -26,18 +26,21 @@ export default class ComicsController {
         this.comicsService = comicsService;
     }
 
-    @Get('pages/take/:take/skip/:skip/')
+    @Post('pages/take/:take/skip/:skip/')
     listPages(
         @Param('take', ParseIntPipe)
         take: number,
         @Param('skip', ParseIntPipe)
         skip: number,
-        @Query('', ComicsPagesQueryValidationPipe)
-        comicsPagesQueryDto: ComicsPagesQueryDto,
+        // @Query('', ComicsPagesQueryValidationPipe)
+        // comicsPagesQueryDto: ComicsPagesQueryDto,
+        @Body() comicsPagesQueryDtoList: ComicsPagesQueryDto[],
     ): Promise<ComicsPagesDto> {
-        comicsPagesQueryDto.take = take;
-        comicsPagesQueryDto.skip = skip;
-        return this.comicsService.listPages(comicsPagesQueryDto);
+        return this.comicsService.listPages(
+            take,
+            skip,
+            comicsPagesQueryDtoList,
+        );
     }
 
     @Get(':id')

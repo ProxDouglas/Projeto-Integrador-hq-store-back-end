@@ -28,10 +28,12 @@ export default class ComicsService {
     }
 
     async listPages(
-        comicsPagesQueryDto: ComicsPagesQueryDto,
+        take: number,
+        skip: number,
+        comicsPagesQueryDtoList: ComicsPagesQueryDto[],
     ): Promise<ComicsPagesDto> {
         return this.searchPages
-            .listPages(comicsPagesQueryDto)
+            .listPages(take, skip, comicsPagesQueryDtoList)
             .then(async (listComicsPageDto) => {
                 for (const comics of listComicsPageDto.comics) {
                     await this.setUrlImage(comics.image);

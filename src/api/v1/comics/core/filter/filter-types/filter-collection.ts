@@ -12,10 +12,9 @@ export default class FilterCollection implements FilterFactory {
         const elements = this.createInConditionalQuery(comicsPageDto.keyword);
         const objectValues = this.buildObjectLiteral(comicsPageDto.keyword);
 
-        selectQueryBuilder.where(
-            'colecao.id IN (' + elements + ')',
-            objectValues,
-        );
+        selectQueryBuilder
+            .leftJoin('hq.collection', 'colecao')
+            .andWhere('colecao.id IN (' + elements + ')', objectValues);
 
         return selectQueryBuilder;
     }

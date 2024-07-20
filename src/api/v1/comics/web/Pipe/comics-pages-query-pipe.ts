@@ -1,4 +1,4 @@
-import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
+import { PipeTransform, Injectable } from '@nestjs/common';
 import ComicsPagesQueryDto from '../dto/comics-pages-query.dto';
 import { TypeFinder } from '../../core/enum/TypeFinder';
 
@@ -7,8 +7,6 @@ export class ComicsPagesQueryValidationPipe implements PipeTransform {
     transform(query: any) {
         const comicsPagesQueryDto = new ComicsPagesQueryDto();
 
-        comicsPagesQueryDto.take = 10;
-        comicsPagesQueryDto.skip = 0;
         comicsPagesQueryDto.typeFinder = TypeFinder.NAME;
         comicsPagesQueryDto.keyword = query.keyword;
 

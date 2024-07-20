@@ -19,28 +19,38 @@ export default class SearchPages {
     }
 
     async listPages(
-        comicsPagesQueryDto: ComicsPagesQueryDto,
+        take: number,
+        skip: number,
+        comicsPagesQueryDtoList: ComicsPagesQueryDto[],
     ): Promise<ComicsPagesDto> {
-        let queryBuilder = this.dataSource
+        const queryBuilder = this.dataSource
             .getRepository(Comics)
             .createQueryBuilder('hq')
             .innerJoin('hq.image', 'hq_imagem', null, ['hq_imagem.id'])
             .addSelect(['hq_imagem.id', 'hq_imagem.name'])
-            .take(comicsPagesQueryDto.take)
-            .skip(comicsPagesQueryDto.skip * comicsPagesQueryDto.take);
+            .take(take)
+            .skip(skip * take);
 
-        const filter = this.filterFactory.build(comicsPagesQueryDto.typeFinder);
-
-        queryBuilder = filter.generateFinder(comicsPagesQueryDto, queryBuilder);
+        this.adicionarFiltros(comicsPagesQueryDtoList, queryBuilder);
 
         return queryBuilder.getManyAndCount().then(([comics, comicsQtd]) => {
             const comicsPageDto = new ComicsPagesDto();
             comicsPageDto.comics = comics;
-            comicsPageDto.pages = this.calcularPaginas(
-                comicsQtd,
-                comicsPagesQueryDto.take,
-            );
+            comicsPageDto.pages = this.calcularPaginas(comicsQtd, take);
             return comicsPageDto;
+        });
+    }
+
+    private adicionarFiltros(comicsPagesQueryDtoList, queryBuilder) {
+        comicsPagesQueryDtoList.forEach((comicsPagesQueryDto) => {
+            const filter = this.filterFactory.build(
+                comicsPagesQueryDto.typeFinder,
+            );
+
+            queryBuilder = filter.generateFinder(
+                comicsPagesQueryDto,
+                queryBuilder,
+            );
         });
     }
 
