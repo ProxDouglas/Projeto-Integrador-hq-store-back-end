@@ -1,13 +1,12 @@
-import { SelectQueryBuilder } from 'typeorm';
 import FilterFactory from '../interface/filter-types';
-import Comics from '../../entity/comics.entity';
-import ComicsPagesQueryDto from '../../../web/dto/comics-pages-query.dto';
-import ResponseException from '../../../../exception/response.exception';
+import ComicsPagesQueryDto from '../../../../web/dto/comics-pages-query.dto';
+import ResponseException from '../../../../../exception/response.exception';
+import ComicsFilterBuilder from '../../builder/comics-filter-builder';
 export default class FilterAgePublication implements FilterFactory {
-    generateFinder(
+    addFilter(
         comicsPageDto: ComicsPagesQueryDto,
-        selectQueryBuilder: SelectQueryBuilder<Comics>,
-    ): SelectQueryBuilder<Comics> {
+        comicsFilterBuilder: ComicsFilterBuilder,
+    ): ComicsFilterBuilder {
         let dataInicial = 1900;
         let dataFinal = 2900;
 
@@ -23,7 +22,7 @@ export default class FilterAgePublication implements FilterFactory {
         if (comicsPageDto.keyword.length === 2 && comicsPageDto.keyword[1])
             dataFinal = parseInt(comicsPageDto.keyword[1]);
 
-        return selectQueryBuilder.andWhere(
+        return comicsFilterBuilder.andWhere(
             'hq.year_publication BETWEEN :date_ini AND :date_end',
             {
                 date_ini: dataInicial,

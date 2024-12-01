@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import ComicsPagesDto from '../../web/dto/comics-pages.dto';
-import FilterFactory from '../filter/filter-factory';
-import Comics from '../entity/comics.entity';
+import FilterFactory from '../filter/factory/filter-factory';
 import ComicsPagesQueryDto from '../../web/dto/comics-pages-query.dto';
+import ComicsFilterBuilder from '../filter/builder/comics-filter-builder';
 
 @Injectable()
 export default class SearchPages {
@@ -23,44 +23,32 @@ export default class SearchPages {
         skip: number,
         comicsPagesQueryDtoList: ComicsPagesQueryDto[],
     ): Promise<ComicsPagesDto> {
-        const queryBuilder = this.dataSource
-            .getRepository(Comics)
-            .createQueryBuilder('hq')
-            .innerJoin('hq.image', 'hq_imagem', null, ['hq_imagem.id'])
-            .addSelect(['hq_imagem.id', 'hq_imagem.name'])
-            .take(take)
-            .skip(skip * take);
+        let comicsFilterBuilder = new ComicsFilterBuilder(this.dataSource);
 
-        this.adicionarFiltros(comicsPagesQueryDtoList, queryBuilder);
+        comicsFilterBuilder = comicsFilterBuilder.setSkip(skip).setTake(take);
 
-        return queryBuilder.getManyAndCount().then(([comics, comicsQtd]) => {
-            const comicsPageDto = new ComicsPagesDto();
-            comicsPageDto.comics = comics;
-            comicsPageDto.pages = this.calcularPaginas(comicsQtd, take);
-            return comicsPageDto;
-        });
+        this.adicionarFiltros(comicsPagesQueryDtoList, comicsFilterBuilder);
+
+        return comicsFilterBuilder.build();
     }
 
-    private adicionarFiltros(comicsPagesQueryDtoList, queryBuilder) {
-        comicsPagesQueryDtoList.forEach((comicsPagesQueryDto) => {
-            const filter = this.filterFactory.build(
-                comicsPagesQueryDto.typeFinder,
+    private adicionarFiltros(
+        comicsPagesQueryDtoList: ComicsPagesQueryDto[],
+        comicsFilterBuilder: ComicsFilterBuilder,
+    ) {
+        if (Array.isArray(comicsPagesQueryDtoList) == true)
+            comicsPagesQueryDtoList.forEach(
+                (comicsPagesQueryDto: ComicsPagesQueryDto) => {
+                    const filter = this.filterFactory.build(
+                        comicsPagesQueryDto.typeFinder,
+                    );
+
+                    if (filter)
+                        filter.addFilter(
+                            comicsPagesQueryDto,
+                            comicsFilterBuilder,
+                        );
+                },
             );
-
-            queryBuilder = filter.generateFinder(
-                comicsPagesQueryDto,
-                queryBuilder,
-            );
-        });
-    }
-
-    private calcularPaginas(dividendo: number, divisor: number) {
-        if (divisor === 0) return 1;
-
-        let resultado = dividendo / divisor;
-        if (dividendo % divisor !== 0) {
-            resultado++;
-        }
-        return Math.floor(resultado);
     }
 }

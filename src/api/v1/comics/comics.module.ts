@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import Comics from './core/entity/comics.entity';
 import ComicsService from './core/service/comics.service';
 import ComicsController from './web/controller/comics.controller';
-import FilterFactory from './core/filter/filter-factory';
+import FilterFactory from './core/filter/factory/filter-factory';
 import SearchPages from './core/serch/search-pages';
 import ComicsImageModule from '../comics-image/comic-image.module';
 

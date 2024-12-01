@@ -1,22 +1,22 @@
-import { ObjectLiteral, SelectQueryBuilder } from 'typeorm';
+import { ObjectLiteral } from 'typeorm';
 import FilterFactory from '../interface/filter-types';
-import Comics from '../../entity/comics.entity';
-import ComicsPagesQueryDto from '../../../web/dto/comics-pages-query.dto';
+import ComicsFilterBuilder from '../../builder/comics-filter-builder';
+import ComicsPagesQueryDto from '../../../../web/dto/comics-pages-query.dto';
 export default class FilterCollection implements FilterFactory {
-    generateFinder(
+    addFilter(
         comicsPageDto: ComicsPagesQueryDto,
-        selectQueryBuilder: SelectQueryBuilder<Comics>,
-    ): SelectQueryBuilder<Comics> {
-        if (comicsPageDto.keyword.length === 0) return selectQueryBuilder;
+        comicsFilterBuilder: ComicsFilterBuilder,
+    ): ComicsFilterBuilder {
+        if (comicsPageDto.keyword.length === 0) return comicsFilterBuilder;
 
         const elements = this.createInConditionalQuery(comicsPageDto.keyword);
         const objectValues = this.buildObjectLiteral(comicsPageDto.keyword);
 
-        selectQueryBuilder
+        comicsFilterBuilder
             .leftJoin('hq.collection', 'colecao')
             .andWhere('colecao.id IN (' + elements + ')', objectValues);
 
-        return selectQueryBuilder;
+        return comicsFilterBuilder;
     }
 
     createInConditionalQuery(keywords: string[]): string {

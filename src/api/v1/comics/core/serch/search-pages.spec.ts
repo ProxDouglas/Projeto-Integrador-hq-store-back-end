@@ -1,208 +1,92 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
-import Comics from '../entity/comics.entity';
-import FilterFactory from '../filter/filter-factory';
+import { DataSource } from 'typeorm';
 import SearchPages from './search-pages';
-import ComicsPagesDto from '../../web/dto/comics-pages.dto';
+import FilterFactory from '../filter/factory/filter-factory';
+import ComicsFilterBuilder from '../filter/builder/comics-filter-builder';
 import ComicsPagesQueryDto from '../../web/dto/comics-pages-query.dto';
-import FilterEmpty from '../filter/filter-types/filter-empty';
-import FilterName from '../filter/filter-types/filter-name';
+import ComicsPagesDto from '../../web/dto/comics-pages.dto';
 import { TypeFinder } from '../enum/TypeFinder';
+
+jest.mock('../filter/builder/comics-filter-builder');
 
 describe('SearchPages', () => {
     let searchPages: SearchPages;
-    let dataSource: DataSource;
-    let filterFactory: FilterFactory;
-    let comicsRepository: Repository<Comics>;
-    let queryBuilder: SelectQueryBuilder<Comics>;
+    let dataSourceMock: jest.Mocked<DataSource>;
+    let filterFactoryMock: jest.Mocked<FilterFactory>;
+    let comicsFilterBuilderMock: jest.Mocked<ComicsFilterBuilder>;
 
     beforeEach(async () => {
+        dataSourceMock = {
+            getRepository: jest.fn(),
+        } as unknown as jest.Mocked<DataSource>;
+
+        comicsFilterBuilderMock = {
+            setTake: jest.fn().mockReturnThis(),
+            setSkip: jest.fn().mockReturnThis(),
+            build: jest.fn().mockResolvedValue(new ComicsPagesDto()),
+        } as unknown as jest.Mocked<ComicsFilterBuilder>;
+
+        (ComicsFilterBuilder as jest.Mock).mockImplementation(
+            () => comicsFilterBuilderMock,
+        );
+
+        filterFactoryMock = {
+            build: jest.fn(),
+        } as unknown as jest.Mocked<FilterFactory>;
+
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 SearchPages,
-                {
-                    provide: DataSource,
-                    useValue: {
-                        getRepository: jest.fn().mockReturnValue({
-                            createQueryBuilder: jest.fn(),
-                        }),
-                    },
-                },
-                {
-                    provide: FilterFactory,
-                    useValue: {
-                        build: jest.fn(),
-                    },
-                },
+                { provide: DataSource, useValue: dataSourceMock },
+                { provide: FilterFactory, useValue: filterFactoryMock },
             ],
         }).compile();
 
         searchPages = module.get<SearchPages>(SearchPages);
-        dataSource = module.get<DataSource>(DataSource);
-        filterFactory = module.get<FilterFactory>(FilterFactory);
-        comicsRepository = dataSource.getRepository(Comics);
-        queryBuilder = {
-            leftJoin: jest.fn().mockReturnThis(),
-            innerJoin: jest.fn().mockReturnThis(),
-            addSelect: jest.fn().mockReturnThis(),
-            leftJoinAndSelect: jest.fn().mockReturnThis(),
-            take: jest.fn().mockReturnThis(),
-            skip: jest.fn().mockReturnThis(),
-            getManyAndCount: jest.fn(),
-        } as any;
-
-        (comicsRepository.createQueryBuilder as jest.Mock).mockReturnValue(
-            queryBuilder,
-        );
     });
 
-    it('should be defined', () => {
-        expect(searchPages).toBeDefined();
+    it('should call ComicsFilterBuilder with correct parameters in listPages', async () => {
+        const queryDtoList: ComicsPagesQueryDto[] = [];
+        const result = await searchPages.listPages(10, 2, queryDtoList);
+
+        expect(ComicsFilterBuilder).toHaveBeenCalledWith(dataSourceMock);
+        expect(comicsFilterBuilderMock.setSkip).toHaveBeenCalledWith(2);
+        expect(comicsFilterBuilderMock.setTake).toHaveBeenCalledWith(10);
+        expect(comicsFilterBuilderMock.build).toHaveBeenCalled();
+        expect(result).toBeInstanceOf(ComicsPagesDto);
     });
 
-    it('should return a list of comics pages with FilterName', async () => {
-        const take = 10;
-        const skip = 0;
-        const queryDto: ComicsPagesQueryDto[] = [
+    it('should add filters correctly in adicionarFiltros', () => {
+        const comicsPagesQueryDtoList: ComicsPagesQueryDto[] = [
+            { typeFinder: TypeFinder.NAME, keyword: ['Naruto'] },
             {
-                typeFinder: TypeFinder.NAME,
-                keyword: ['Naruto'],
+                typeFinder: TypeFinder.YEAR_PUBLICATION,
+                keyword: ['2023', '2024'],
             },
         ];
 
-        const mockComics: Comics[] = [
-            {
-                id: 1,
-                name: 'Naruto v1',
-                year_publication: 1999,
-                month_publication: 9,
-                number_pages: 30,
-                publisher: 'Shonen Jumps',
-                age_rating: 10,
-                price: 29.99,
-                image: {
-                    id: 4,
-                    name: 'images-2024-06-10-Naruto_v1-Naruto_v1.png',
-                    url: 'https://example.com/image.png',
-                    comics_id: 0,
-                    comics: null,
-                },
-                collection: [
-                    {
-                        id: 2,
-                        name: 'Manga',
-                        description: 'História em quadrinhos japonesas',
-                        comics: [],
-                    },
-                    {
-                        id: 3,
-                        name: 'Naruto',
-                        description: 'Volumes do Manga Naruto',
-                        comics: [],
-                    },
-                ],
-                carrinho_item: null,
-            },
-        ];
+        const mockFilter = {
+            addFilter: jest.fn(),
+        };
 
-        const expectedResult = new ComicsPagesDto();
-        expectedResult.comics = mockComics;
-        expectedResult.pages = 1;
+        filterFactoryMock.build.mockImplementation(() => {
+            return mockFilter;
+        });
 
-        const filterName = new FilterName();
-        jest.spyOn(filterFactory, 'build').mockReturnValue(filterName);
-        jest.spyOn(filterName, 'generateFinder').mockImplementation(
-            (dto, qb) => qb,
+        searchPages['adicionarFiltros'](
+            comicsPagesQueryDtoList,
+            comicsFilterBuilderMock,
         );
 
-        jest.spyOn(queryBuilder, 'getManyAndCount').mockResolvedValue([
-            mockComics,
-            1,
-        ]);
-
-        const result = await searchPages.listPages(take, skip, queryDto);
-
-        expect(result).toEqual(expectedResult);
-        expect(filterFactory.build).toHaveBeenCalledWith(TypeFinder.NAME);
-        expect(filterName.generateFinder).toHaveBeenCalledWith(
-            queryDto[0],
-            queryBuilder,
+        expect(filterFactoryMock.build).toHaveBeenCalledTimes(2);
+        expect(mockFilter.addFilter).toHaveBeenCalledTimes(2);
+        expect(mockFilter.addFilter).toHaveBeenCalledWith(
+            comicsPagesQueryDtoList[0],
+            comicsFilterBuilderMock,
         );
-    });
-
-    it('should return a list of comics pages with FilterEmpty', async () => {
-        const take = 10;
-        const skip = 0;
-        const queryDto: ComicsPagesQueryDto[] = [
-            {
-                typeFinder: undefined,
-                keyword: [],
-            },
-        ];
-
-        const mockComics: Comics[] = [
-            {
-                id: 1,
-                name: 'Naruto v1',
-                year_publication: 1999,
-                month_publication: 9,
-                number_pages: 30,
-                publisher: 'Shonen Jumps',
-                age_rating: 10,
-                price: 29.99,
-                image: {
-                    id: 4,
-                    name: 'images-2024-06-10-Naruto_v1-Naruto_v1.png',
-                    url: 'https://example.com/image.png',
-                    comics_id: 0,
-                    comics: null,
-                },
-                collection: [
-                    {
-                        id: 2,
-                        name: 'Manga',
-                        description: 'História em quadrinhos japonesas',
-                        comics: [],
-                    },
-                    {
-                        id: 3,
-                        name: 'Naruto',
-                        description: 'Volumes do Manga Naruto',
-                        comics: [],
-                    },
-                ],
-                carrinho_item: null,
-            },
-        ];
-
-        const expectedResult = new ComicsPagesDto();
-        expectedResult.comics = mockComics;
-        expectedResult.pages = 1;
-
-        const filterEmpty = new FilterEmpty();
-        jest.spyOn(filterFactory, 'build').mockReturnValue(filterEmpty);
-        jest.spyOn(filterEmpty, 'generateFinder').mockImplementation(
-            (dto, qb) => qb,
+        expect(mockFilter.addFilter).toHaveBeenCalledWith(
+            comicsPagesQueryDtoList[1],
+            comicsFilterBuilderMock,
         );
-
-        jest.spyOn(queryBuilder, 'getManyAndCount').mockResolvedValue([
-            mockComics,
-            1,
-        ]);
-
-        const result = await searchPages.listPages(take, skip, queryDto);
-
-        expect(result).toEqual(expectedResult);
-        expect(filterFactory.build).toHaveBeenCalledWith(undefined);
-        expect(filterEmpty.generateFinder).toHaveBeenCalledWith(
-            queryDto[0],
-            queryBuilder,
-        );
-    });
-
-    it('should calculate pages correctly', () => {
-        expect(searchPages['calcularPaginas'](10, 5)).toBe(2);
-        expect(searchPages['calcularPaginas'](10, 3)).toBe(4);
-        expect(searchPages['calcularPaginas'](10, 0)).toBe(1);
     });
 });

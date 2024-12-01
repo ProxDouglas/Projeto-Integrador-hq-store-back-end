@@ -1,13 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import ComicsService from './comics.service';
 import Comics from '../entity/comics.entity';
+import ComicsService from './comics.service';
 import ComicsNotFound from '../../web/exception/comics-not-found';
-import ComicsPagesDto from '../../web/dto/comics-pages.dto';
 import AWSConnectorS3 from '../../../comics-image/core/connector/aws-s3.connector';
 import SearchPages from '../serch/search-pages';
+import ComicsPagesQueryDto from '../../web/dto/comics-pages-query.dto';
+import ComicsPagesDto from '../../web/dto/comics-pages.dto';
 import CreateComicsDto from '../../web/dto/create-comics.dto';
-import ResponseException from 'src/api/v1/exception/response.exception';
+import ComicsImage from '../../../comics-image/core/entity/comic-image.entity';
 import CreateComicsMapper from '../../web/mapper/comics-mapper';
 
 const comicsPagesDto = new ComicsPagesDto({
@@ -112,145 +114,148 @@ const comicsPagesDto = new ComicsPagesDto({
     pages: 1,
 });
 
-jest.mock('typeorm');
-
 describe('ComicsService', () => {
     let service: ComicsService;
-    let comicsRepositoryMock: jest.Mocked<Repository<Comics>>;
-    let searchPagesMock: jest.Mocked<SearchPages>;
-    let awsConnectorS3Mock: jest.Mocked<AWSConnectorS3>;
+    let repository: Repository<Comics>;
+    let searchPages: SearchPages;
+    let connectorS3: AWSConnectorS3;
 
     beforeEach(async () => {
-        comicsRepositoryMock = {
-            findOneOrFail: jest.fn(),
-            findOneBy: jest.fn(),
-            save: jest.fn(),
-            delete: jest.fn(),
-        } as unknown as jest.Mocked<Repository<Comics>>;
-
-        searchPagesMock = {
-            listPages: jest.fn(),
-        } as unknown as jest.Mocked<SearchPages>;
-
-        awsConnectorS3Mock = {
-            getFile: jest.fn(),
-        } as unknown as jest.Mocked<AWSConnectorS3>;
-
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 ComicsService,
-                { provide: 'ComicsRepository', useValue: comicsRepositoryMock },
-                { provide: SearchPages, useValue: searchPagesMock },
-                { provide: AWSConnectorS3, useValue: awsConnectorS3Mock },
+                {
+                    provide: getRepositoryToken(Comics),
+                    useClass: Repository,
+                },
+                {
+                    provide: SearchPages,
+                    useValue: {
+                        listPages: jest.fn(),
+                    },
+                },
+                {
+                    provide: AWSConnectorS3,
+                    useValue: {
+                        getFile: jest.fn(),
+                    },
+                },
             ],
         }).compile();
 
         service = module.get<ComicsService>(ComicsService);
+        repository = module.get<Repository<Comics>>(getRepositoryToken(Comics));
+        searchPages = module.get<SearchPages>(SearchPages);
+        connectorS3 = module.get<AWSConnectorS3>(AWSConnectorS3);
     });
 
-    it('should list pages and set image URLs', async () => {
-        searchPagesMock.listPages.mockResolvedValue(comicsPagesDto);
-        awsConnectorS3Mock.getFile.mockResolvedValue(
-            'https://url-to-s3.com/test.jpg',
-        );
-
-        const result = await service.listPages(10, 0, []);
-
-        expect(searchPagesMock.listPages).toHaveBeenCalledWith(10, 0, []);
-        expect(awsConnectorS3Mock.getFile).toHaveBeenCalledWith('test.jpg');
-        expect(result.comics[0].image.url).toBe(
-            'https://url-to-s3.com/test.jpg',
-        );
+    it('should be defined', () => {
+        expect(service).toBeDefined();
     });
 
-    it('should throw ResponseException when listPages fails', async () => {
-        searchPagesMock.listPages.mockRejectedValue(new Error('Failed'));
+    describe('listPages', () => {
+        it('should list pages with image URLs', async () => {
+            const comicsPagesQueryDto = new ComicsPagesQueryDto();
 
-        await expect(service.listPages(10, 0, [])).rejects.toThrow(
-            ResponseException,
-        );
-    });
+            jest.spyOn(searchPages, 'listPages').mockResolvedValue(
+                comicsPagesDto,
+            );
 
-    it('should get comic by id and set image URL', async () => {
-        const comic = { id: 1, image: { name: 'test.jpg', url: '' } } as Comics;
-        comicsRepositoryMock.findOneOrFail.mockResolvedValue(comic);
-        awsConnectorS3Mock.getFile.mockResolvedValue(
-            'https://url-to-s3.com/test.jpg',
-        );
+            const listComicsPagesQueryDto: ComicsPagesQueryDto[] = [];
 
-        const result = await service.getById(1);
+            listComicsPagesQueryDto.push(comicsPagesQueryDto);
 
-        expect(comicsRepositoryMock.findOneOrFail).toHaveBeenCalledWith({
-            where: { id: 1 },
-            select: { image: { id: true, name: true } },
-            relations: { image: true, collection: true },
+            const take = 10;
+            const skip = 0;
+
+            const result = await service.listPages(
+                take,
+                skip,
+                listComicsPagesQueryDto,
+            );
+
+            expect(result).toBe(comicsPagesDto);
         });
-        expect(awsConnectorS3Mock.getFile).toHaveBeenCalledWith('test.jpg');
-        expect(result.image.url).toBe('https://url-to-s3.com/test.jpg');
     });
 
-    it('should throw ComicsNotFound when comic not found', async () => {
-        comicsRepositoryMock.findOneOrFail.mockRejectedValue(new Error());
+    describe('getById', () => {
+        it('should return a comic by id', async () => {
+            const comics = new Comics();
+            const comicsImage = new ComicsImage();
+            comicsImage.name = 'image.jpg';
+            comics.image = comicsImage;
 
-        await expect(service.getById(1)).rejects.toThrow(ComicsNotFound);
-    });
+            jest.spyOn(repository, 'findOneOrFail').mockResolvedValue(comics);
+            jest.spyOn(connectorS3, 'getFile').mockResolvedValue('url');
 
-    it('should create a new comic', async () => {
-        const comics = new Comics();
-        const createComicsMapper = new CreateComicsMapper();
+            const result = await service.getById(1);
 
-        comics.name = 'Melhores Histórias Da Mônica Por Mônica 01';
-        comics.year_publication = 2023;
-        comics.month_publication = 11;
-        comics.number_pages = 64;
-        comics.publisher = 'EDITORA MAURICIO de SOUZA ';
-        comics.age_rating = 0;
-        comics.price = 9.9;
-        comicsRepositoryMock.save.mockResolvedValue(comics);
-
-        const createComicsDto = createComicsMapper.toDto(comics);
-
-        const result = await service.create(comics);
-
-        expect(comicsRepositoryMock.save).toHaveBeenCalledWith(comics);
-        expect(result).toBe(comics);
-    });
-
-    it('should update an existing comic', async () => {
-        const comic = { id: 1, name: 'Old Name' } as Comics;
-        const updatedDto = new CreateComicsDto();
-        updatedDto.name = 'New Name';
-
-        comicsRepositoryMock.findOneBy.mockResolvedValue(comic);
-        comicsRepositoryMock.save.mockResolvedValue({
-            ...comic,
-            ...updatedDto,
+            expect(result).toBe(comics);
+            expect(result.image.url).toBe('url');
         });
 
-        const result = await service.update(1, updatedDto);
+        it('should throw ComicsNotFound exception if comic is not found', async () => {
+            jest.spyOn(repository, 'findOneOrFail').mockRejectedValue(
+                new Error(),
+            );
 
-        expect(comicsRepositoryMock.findOneBy).toHaveBeenCalledWith({ id: 1 });
-        expect(comicsRepositoryMock.save).toHaveBeenCalledWith({
-            ...comic,
-            ...updatedDto,
+            await expect(service.getById(1)).rejects.toThrow(ComicsNotFound);
         });
-        expect(result.name).toBe('New Name');
     });
 
-    it('should delete a comic by id', async () => {
-        const comic = { id: 1 } as Comics;
-        comicsRepositoryMock.findOneBy.mockResolvedValue(comic);
-        comicsRepositoryMock.delete.mockResolvedValue(undefined);
+    describe('create', () => {
+        it('should create a new comic', async () => {
+            const comics = new Comics();
+            const createComicsMapper = new CreateComicsMapper();
 
-        await service.delete(1);
+            comics.name = 'Melhores Histórias Da Mônica Por Mônica 01';
+            comics.year_publication = 2023;
+            comics.month_publication = 11;
+            comics.number_pages = 64;
+            comics.publisher = 'EDITORA MAURICIO de SOUZA ';
+            comics.age_rating = 0;
+            comics.price = 9.9;
 
-        expect(comicsRepositoryMock.findOneBy).toHaveBeenCalledWith({ id: 1 });
-        expect(comicsRepositoryMock.delete).toHaveBeenCalledWith(comic);
+            jest.spyOn(repository, 'save').mockResolvedValue(comics);
+
+            const createComicsDto = createComicsMapper.toDto(comics);
+
+            const result = await service.create(createComicsDto);
+
+            expect(result).toBe(comics);
+        });
     });
 
-    it('should throw ComicsNotFound when trying to delete non-existing comic', async () => {
-        comicsRepositoryMock.findOneBy.mockResolvedValue(null);
+    describe('update', () => {
+        it('should update a comic', async () => {
+            const createComicsDto = new CreateComicsDto();
+            const comics = new Comics();
+            jest.spyOn(repository, 'findOneBy').mockResolvedValue(comics);
+            jest.spyOn(repository, 'save').mockResolvedValue(comics);
 
-        await expect(service.delete(1)).rejects.toThrow(ComicsNotFound);
+            const result = await service.update(1, createComicsDto);
+
+            expect(result).toBe(comics);
+        });
+
+        it('should throw ComicsNotFound exception if comic is not found for update', async () => {
+            jest.spyOn(repository, 'findOneBy').mockResolvedValue(undefined);
+
+            await expect(
+                service.update(1, new CreateComicsDto()),
+            ).rejects.toThrow(ComicsNotFound);
+        });
+    });
+
+    describe('delete', () => {
+        it('should delete a comic', async () => {
+            const comics = new Comics();
+            jest.spyOn(repository, 'findOneBy').mockResolvedValue(comics);
+            jest.spyOn(repository, 'delete').mockResolvedValue(undefined);
+
+            await service.delete(1);
+
+            expect(repository.delete).toHaveBeenCalledWith(comics);
+        });
     });
 });

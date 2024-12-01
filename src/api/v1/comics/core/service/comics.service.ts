@@ -9,6 +9,7 @@ import AWSConnectorS3 from '../../../comics-image/core/connector/aws-s3.connecto
 import SearchPages from '../serch/search-pages';
 import CreateComicsDto from '../../web/dto/create-comics.dto';
 import ComicsImage from 'src/api/v1/comics-image/core/entity/comic-image.entity';
+import ResponseException from 'src/api/v1/exception/response.exception';
 
 @Injectable()
 export default class ComicsService {
@@ -40,6 +41,15 @@ export default class ComicsService {
                 }
 
                 return listComicsPageDto;
+            })
+            .catch((error) => {
+                console.error(error);
+                return Promise.reject(
+                    new ResponseException(
+                        400,
+                        'Não foi possivel buscar as Hqs!',
+                    ),
+                );
             });
     }
 
