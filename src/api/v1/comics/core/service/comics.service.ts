@@ -8,8 +8,8 @@ import ComicsPagesQueryDto from '../../web/dto/comics-pages-query.dto';
 import AWSConnectorS3 from '../../../comics-image/core/connector/aws-s3.connector';
 import SearchPages from '../serch/search-pages';
 import CreateComicsDto from '../../web/dto/create-comics.dto';
-import ComicsImage from 'src/api/v1/comics-image/core/entity/comic-image.entity';
-import ResponseException from 'src/api/v1/exception/response.exception';
+import ComicsImage from '../../../comics-image/core/entity/comic-image.entity';
+import ResponseException from '../../../exception/response.exception';
 
 @Injectable()
 export default class ComicsService {
@@ -87,37 +87,72 @@ export default class ComicsService {
         id: number,
         createComicsDto: CreateComicsDto,
     ): Promise<CreateComicsDto> {
-        return await this.comicsRepository
+        const comics = await this.comicsRepository
             .findOneBy({ id })
-            .then((comics) => {
-                if (createComicsDto.name) comics.name = createComicsDto.name;
+            .catch((error) => {
+                return Promise.reject(
+                    new ResponseException(
+                        error?.status ?? 500,
+                        error?.message ??
+                            'Não foi possivel atualizar o registro!',
+                    ),
+                );
+            });
 
-                if (createComicsDto.year_publication)
-                    comics.year_publication = createComicsDto.year_publication;
+        if (!comics) return Promise.reject(new ComicsNotFound(id));
 
-                if (createComicsDto.month_publication)
-                    comics.month_publication =
-                        createComicsDto.month_publication;
+        if (createComicsDto.name) comics.name = createComicsDto.name;
 
-                if (createComicsDto.number_pages)
-                    comics.number_pages = createComicsDto.number_pages;
+        if (createComicsDto.year_publication)
+            comics.year_publication = createComicsDto.year_publication;
 
-                if (createComicsDto.publisher)
-                    comics.publisher = createComicsDto.publisher;
+        if (createComicsDto.month_publication)
+            comics.month_publication = createComicsDto.month_publication;
 
-                if (createComicsDto.age_rating)
-                    comics.age_rating = createComicsDto.age_rating;
+        if (createComicsDto.number_pages)
+            comics.number_pages = createComicsDto.number_pages;
 
-                if (createComicsDto.price) comics.price = createComicsDto.price;
+        if (createComicsDto.publisher)
+            comics.publisher = createComicsDto.publisher;
 
-                return this.comicsRepository.save(comics);
-            })
-            .catch(() => Promise.reject(new ComicsNotFound(id)));
+        if (createComicsDto.age_rating)
+            comics.age_rating = createComicsDto.age_rating;
+
+        if (createComicsDto.price) comics.price = createComicsDto.price;
+
+        return this.comicsRepository.save(comics).catch((error) => {
+            return Promise.reject(
+                new ResponseException(
+                    error?.status ?? 500,
+                    error?.message ?? 'Não foi possivel atualizar o registro!',
+                ),
+            );
+        });
     }
 
-    public async delete(id: number) {
-        this.comicsRepository
+    public async delete(id: number): Promise<void> {
+        const comics = await this.comicsRepository
             .findOneBy({ id })
-            .then((comics) => this.comicsRepository.delete(comics));
+            .catch((error) => {
+                return Promise.reject(
+                    new ResponseException(
+                        error?.status ?? 500,
+                        error?.message ??
+                            'Não foi possivel excluir o registro!',
+                    ),
+                );
+            });
+
+        if (!comics) return Promise.reject(new ComicsNotFound(id));
+
+        this.comicsRepository.delete(comics).catch((error) => {
+            console.error(error);
+            return Promise.reject(
+                new ResponseException(
+                    500,
+                    'Não foi possivel excluir o registro!',
+                ),
+            );
+        });
     }
 }

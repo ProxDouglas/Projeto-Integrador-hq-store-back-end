@@ -1,7 +1,7 @@
 import Comics from '../../core/entity/comics.entity';
 import CreateComicsDto from '../dto/create-comics.dto';
 
-export default class ComicsMapper {
+export default class CreateComicsMapper {
     public toDto(comics: Comics): CreateComicsDto {
         const createComicsDto = new CreateComicsDto();
 

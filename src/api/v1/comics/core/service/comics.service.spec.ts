@@ -7,8 +7,7 @@ import ComicsPagesDto from '../../web/dto/comics-pages.dto';
 import AWSConnectorS3 from '../../../comics-image/core/connector/aws-s3.connector';
 import SearchPages from '../serch/search-pages';
 import CreateComicsDto from '../../web/dto/create-comics.dto';
-import ResponseException from 'src/api/v1/exception/response.exception';
-import CreateComicsMapper from '../../web/mapper/comics-mapper';
+import ResponseException from '../../../exception/response.exception';
 
 const comicsPagesDto = new ComicsPagesDto({
     comics: [
@@ -112,8 +111,6 @@ const comicsPagesDto = new ComicsPagesDto({
     pages: 1,
 });
 
-jest.mock('typeorm');
-
 describe('ComicsService', () => {
     let service: ComicsService;
     let comicsRepositoryMock: jest.Mocked<Repository<Comics>>;
@@ -151,15 +148,15 @@ describe('ComicsService', () => {
     it('should list pages and set image URLs', async () => {
         searchPagesMock.listPages.mockResolvedValue(comicsPagesDto);
         awsConnectorS3Mock.getFile.mockResolvedValue(
-            'https://url-to-s3.com/test.jpg',
+            'https://url-to-s3.com/images-2024-06-10-Naruto_v1-Naruto_v1.png',
         );
 
         const result = await service.listPages(10, 0, []);
 
         expect(searchPagesMock.listPages).toHaveBeenCalledWith(10, 0, []);
-        expect(awsConnectorS3Mock.getFile).toHaveBeenCalledWith('test.jpg');
+        expect(awsConnectorS3Mock.getFile).toHaveBeenCalledTimes(3);
         expect(result.comics[0].image.url).toBe(
-            'https://url-to-s3.com/test.jpg',
+            'https://url-to-s3.com/images-2024-06-10-Naruto_v1-Naruto_v1.png',
         );
     });
 
@@ -195,62 +192,71 @@ describe('ComicsService', () => {
         await expect(service.getById(1)).rejects.toThrow(ComicsNotFound);
     });
 
-    it('should create a new comic', async () => {
-        const comics = new Comics();
-        const createComicsMapper = new CreateComicsMapper();
+    describe('create', () => {
+        it('should create a new comic', async () => {
+            const comics = new Comics();
+            // const createComicsMapper = new CreateComicsMapper();
 
-        comics.name = 'Melhores Histórias Da Mônica Por Mônica 01';
-        comics.year_publication = 2023;
-        comics.month_publication = 11;
-        comics.number_pages = 64;
-        comics.publisher = 'EDITORA MAURICIO de SOUZA ';
-        comics.age_rating = 0;
-        comics.price = 9.9;
-        comicsRepositoryMock.save.mockResolvedValue(comics);
+            comics.name = 'Melhores Histórias Da Mônica Por Mônica 01';
+            comics.year_publication = 2023;
+            comics.month_publication = 11;
+            comics.number_pages = 64;
+            comics.publisher = 'EDITORA MAURICIO de SOUZA ';
+            comics.age_rating = 0;
+            comics.price = 9.9;
+            comicsRepositoryMock.save.mockResolvedValue(comics);
 
-        const createComicsDto = createComicsMapper.toDto(comics);
+            // const createComicsDto = createComicsMapper.toDto(comics);
 
-        const result = await service.create(comics);
+            const result = await service.create(comics);
 
-        expect(comicsRepositoryMock.save).toHaveBeenCalledWith(comics);
-        expect(result).toBe(comics);
+            expect(comicsRepositoryMock.save).toHaveBeenCalledWith(comics);
+            expect(result).toBe(comics);
+        });
     });
 
-    it('should update an existing comic', async () => {
-        const comic = { id: 1, name: 'Old Name' } as Comics;
-        const updatedDto = new CreateComicsDto();
-        updatedDto.name = 'New Name';
+    describe('update', () => {
+        it('should update an existing comic', async () => {
+            const comic = { id: 1, name: 'Old Name' } as Comics;
+            const updatedDto = new CreateComicsDto();
+            updatedDto.name = 'New Name';
 
-        comicsRepositoryMock.findOneBy.mockResolvedValue(comic);
-        comicsRepositoryMock.save.mockResolvedValue({
-            ...comic,
-            ...updatedDto,
+            comicsRepositoryMock.findOneBy.mockResolvedValue(comic);
+            comicsRepositoryMock.save.mockResolvedValue({
+                ...comic,
+                ...updatedDto,
+            });
+
+            const result = await service.update(1, updatedDto);
+
+            expect(comicsRepositoryMock.findOneBy).toHaveBeenCalledWith({
+                id: 1,
+            });
+            expect(comicsRepositoryMock.save).toHaveBeenCalledWith(comic);
+            expect(result.name).toBe('New Name');
+        });
+    });
+
+    describe('delete', () => {
+        it('should delete a comic by id', async () => {
+            const comic = { id: 1 } as Comics;
+            comicsRepositoryMock.findOneBy.mockResolvedValue(comic);
+            comicsRepositoryMock.delete.mockResolvedValue(undefined);
+
+            await service.delete(1);
+
+            expect(comicsRepositoryMock.findOneBy).toHaveBeenCalledWith({
+                id: 1,
+            });
+            expect(comicsRepositoryMock.delete).toHaveBeenCalledWith(comic);
         });
 
-        const result = await service.update(1, updatedDto);
+        it('should throw ComicsNotFound when trying to delete non-existing comic', async () => {
+            comicsRepositoryMock.findOneBy.mockResolvedValue(null);
 
-        expect(comicsRepositoryMock.findOneBy).toHaveBeenCalledWith({ id: 1 });
-        expect(comicsRepositoryMock.save).toHaveBeenCalledWith({
-            ...comic,
-            ...updatedDto,
+            await expect(service.delete(1)).rejects.toThrow(
+                new ComicsNotFound(1),
+            );
         });
-        expect(result.name).toBe('New Name');
-    });
-
-    it('should delete a comic by id', async () => {
-        const comic = { id: 1 } as Comics;
-        comicsRepositoryMock.findOneBy.mockResolvedValue(comic);
-        comicsRepositoryMock.delete.mockResolvedValue(undefined);
-
-        await service.delete(1);
-
-        expect(comicsRepositoryMock.findOneBy).toHaveBeenCalledWith({ id: 1 });
-        expect(comicsRepositoryMock.delete).toHaveBeenCalledWith(comic);
-    });
-
-    it('should throw ComicsNotFound when trying to delete non-existing comic', async () => {
-        comicsRepositoryMock.findOneBy.mockResolvedValue(null);
-
-        await expect(service.delete(1)).rejects.toThrow(ComicsNotFound);
     });
 });

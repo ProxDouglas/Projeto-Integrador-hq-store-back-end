@@ -36,7 +36,7 @@ export default class SearchPages {
         comicsPagesQueryDtoList: ComicsPagesQueryDto[],
         comicsFilterBuilder: ComicsFilterBuilder,
     ) {
-        if (Array.isArray(comicsPagesQueryDtoList) == true)
+        if (Array.isArray(comicsPagesQueryDtoList))
             comicsPagesQueryDtoList.forEach(
                 (comicsPagesQueryDto: ComicsPagesQueryDto) => {
                     const filter = this.filterFactory.build(

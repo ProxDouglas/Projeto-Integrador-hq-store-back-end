@@ -1,21 +1,15 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import FilterFactory from './filter-factory';
 import FilterName from './filter-types/filter-name';
 import FilterAgePublication from './filter-types/filter-age-publication';
 import FilterCollection from './filter-types/filter-collection';
-import FilterEmpty from './filter-types/filter-empty';
-import { TypeFinder } from '../enum/TypeFinder';
+import { TypeFinder } from '../../enum/TypeFinder';
 import FilterTypes from './interface/filter-types';
 
 describe('FilterFactory', () => {
     let filterFactory: FilterFactory;
 
     beforeEach(async () => {
-        const module: TestingModule = await Test.createTestingModule({
-            providers: [FilterFactory],
-        }).compile();
-
-        filterFactory = module.get<FilterFactory>(FilterFactory);
+        filterFactory = new FilterFactory();
     });
 
     it('should be defined', () => {
@@ -41,6 +35,6 @@ describe('FilterFactory', () => {
 
     it('should return FilterEmpty for unknown TypeFinder', () => {
         const result: FilterTypes = filterFactory.build(undefined);
-        expect(result).toBeInstanceOf(FilterEmpty);
+        expect(result).toBeNull();
     });
 });

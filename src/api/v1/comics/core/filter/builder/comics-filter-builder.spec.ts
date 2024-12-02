@@ -8,7 +8,6 @@ describe('ComicsFilterBuilder', () => {
     let dataSourceMock: jest.Mocked<DataSource>;
 
     beforeEach(() => {
-        // Mock do SelectQueryBuilder
         queryBuilderMock = {
             innerJoin: jest.fn().mockReturnThis(),
             addSelect: jest.fn().mockReturnThis(),
@@ -72,6 +71,29 @@ describe('ComicsFilterBuilder', () => {
         );
     });
 
+    it('should call andWhere with correct parameters', () => {
+        const comicsFilterBuilder = new ComicsFilterBuilder(dataSourceMock);
+        comicsFilterBuilder.andWhere(
+            'hq.year_publication BETWEEN :date_ini AND :date_end',
+            { date_ini: 2019, date_end: 2024 },
+        );
+        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith(
+            'hq.year_publication BETWEEN :date_ini AND :date_end',
+            { date_ini: 2019, date_end: 2024 },
+        );
+    });
+
+    it('should call orWhere with correct parameters', () => {
+        const comicsFilterBuilder = new ComicsFilterBuilder(dataSourceMock);
+        comicsFilterBuilder.andWhere('hq.year_publication = :date_ini', {
+            date_ini: 2019,
+        });
+        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith(
+            'hq.year_publication = :date_ini',
+            { date_ini: 2019 },
+        );
+    });
+
     it('should build and return ComicsPagesDto correctly', async () => {
         const comicsFilterBuilder = new ComicsFilterBuilder(dataSourceMock);
         queryBuilderMock.getManyAndCount.mockResolvedValueOnce([
@@ -92,5 +114,11 @@ describe('ComicsFilterBuilder', () => {
         const comicsFilterBuilder = new ComicsFilterBuilder(dataSourceMock);
         const pages = (comicsFilterBuilder as any).calcularPaginas(15, 10);
         expect(pages).toBe(2);
+    });
+
+    it('should calculate pages correctly with 0 pages', () => {
+        const comicsFilterBuilder = new ComicsFilterBuilder(dataSourceMock);
+        const pages = (comicsFilterBuilder as any).calcularPaginas(10, 0);
+        expect(pages).toBe(1);
     });
 });

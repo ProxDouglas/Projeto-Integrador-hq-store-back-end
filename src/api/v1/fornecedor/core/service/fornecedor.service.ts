@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import Fornecedor from '../entity/fornecedor.entity';
 import FornecedorDto from '../../web/dto/fornecedor.dto';
 import FornecedorNotFound from '../../web/exception/fornecedor-not-found';

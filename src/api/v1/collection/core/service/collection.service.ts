@@ -1,22 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import Collection from '../entity/collection.entity';
-import { DataSource, Like, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import CollectionCreateDto from '../../web/dto/collection_create.dto';
 import CollectionCreateMapper from '../../web/mapper/collection_create.mapper';
 import CollectionUpdateDto from '../../web/dto/collection_update.dto';
 import CollectionNotFound from '../../web/exception/collection-not-found';
-import Comics from 'src/api/v1/comics/core/entity/comics.entity';
-import ComicsAssociateDto from 'src/api/v1/comics/web/dto/comics-associate.dto';
-import ResponseException from 'src/api/v1/exception/response.exception';
+import ComicsAssociateDto from '../../../comics/web/dto/comics-associate.dto';
+import ResponseException from '../../../exception/response.exception';
 
 @Injectable()
 export default class CollectionService {
     private readonly collectionCreateMapper: CollectionCreateMapper;
 
     constructor(
-        @InjectRepository(Comics)
-        private readonly comicsRepository: Repository<Comics>,
         @InjectRepository(Collection)
         private readonly collectionRepository: Repository<Collection>,
         collectionCreateMapper: CollectionCreateMapper,
@@ -27,29 +24,34 @@ export default class CollectionService {
     }
 
     getById(id: number): Promise<Collection> {
-        return this.collectionRepository.findOneOrFail({
-            where: { id },
-        });
+        return this.collectionRepository
+            .findOneOrFail({
+                where: { id },
+            })
+            .catch((error) => {
+                console.log(error);
+                return Promise.reject(new CollectionNotFound(id));
+            });
     }
 
-    getByComicsName(comicsName: string): Promise<Collection[]> {
-        return this.collectionRepository
-            .createQueryBuilder('collections')
-            .select([
-                'collections.id',
-                'collections.name',
-                'collections.description',
-            ])
-            .leftJoin('collections.comics', 'comics_collection', null, [
-                'comics_collection.id',
-            ])
-            .where('comics_collection.name ILIKE :name', {
-                name: '%' + comicsName + '%',
-            })
-            .distinct(true)
-            .limit(40)
-            .getMany();
-    }
+    // getByComicsName(comicsName: string): Promise<Collection[]> {
+    //     return this.collectionRepository
+    //         .createQueryBuilder('collections')
+    //         .select([
+    //             'collections.id',
+    //             'collections.name',
+    //             'collections.description',
+    //         ])
+    //         .leftJoin('collections.comics', 'comics_collection', null, [
+    //             'comics_collection.id',
+    //         ])
+    //         .where('comics_collection.name ILIKE :name', {
+    //             name: '%' + comicsName + '%',
+    //         })
+    //         .distinct(true)
+    //         .limit(40)
+    //         .getMany();
+    // }
 
     create(
         collectionCreateDto: CollectionCreateDto,
