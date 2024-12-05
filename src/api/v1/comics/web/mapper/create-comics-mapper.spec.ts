@@ -1,6 +1,6 @@
-import CreateComicsMapper from './comics-mapper';
+import CreateComicsMapper from './create-comics-mapper';
 import Comics from '../../core/entity/comics.entity';
-import ComicsDto from '../dto/comics.dto';
+import CreateComicsDto from '../dto/create-comics.dto';
 
 describe('CreateComicsMapper', () => {
     let createComicsMapper: CreateComicsMapper;
@@ -10,7 +10,7 @@ describe('CreateComicsMapper', () => {
     });
 
     it('should convert CreateDto to Entity', () => {
-        const comicsDto = new ComicsDto();
+        const comicsDto = new CreateComicsDto();
         comicsDto.id = 1;
         comicsDto.name = 'Naruto V1';
 
@@ -25,7 +25,7 @@ describe('CreateComicsMapper', () => {
     });
 
     it('should convert Entity to CreateDto', () => {
-        const comicsDto = new ComicsDto();
+        const comicsDto = new CreateComicsDto();
         comicsDto.id = 1;
         comicsDto.name = 'Naruto V1';
 

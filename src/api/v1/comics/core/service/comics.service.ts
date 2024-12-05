@@ -74,7 +74,7 @@ export default class ComicsService {
 
     private async setUrlImage(image: ComicsImage) {
         if (!image.name) image.url = '';
-        image.url = await this.connectorS3.getFile(image.name);
+        else image.url = await this.connectorS3.getFile(image.name);
     }
 
     public async create(

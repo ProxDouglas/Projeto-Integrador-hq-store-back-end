@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import CollectionCreateDto from '../dto/collection_create.dto';
 import Collection from '../../core/entity/collection.entity';
 import Comics from '../../../comics/core/entity/comics.entity';
-import ComicsAssociateDto from '../dto/collection_create.dto';
 
 @Injectable()
 export default class CollectionCreateMapper {
@@ -30,7 +29,7 @@ export default class CollectionCreateMapper {
         collectionCreateDto.description = collection.description;
         if (Array.isArray(collection.comics) === true)
             collectionCreateDto.comics = collection.comics.map((comics) => {
-                const comicsAssociateDto = new ComicsAssociateDto();
+                const comicsAssociateDto = new CollectionCreateDto();
                 comicsAssociateDto.id = comics.id;
                 return comicsAssociateDto;
             });

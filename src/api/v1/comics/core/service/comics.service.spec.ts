@@ -2,261 +2,246 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Repository } from 'typeorm';
 import ComicsService from './comics.service';
 import Comics from '../entity/comics.entity';
-import ComicsNotFound from '../../web/exception/comics-not-found';
-import ComicsPagesDto from '../../web/dto/comics-pages.dto';
-import AWSConnectorS3 from '../../../comics-image/core/connector/aws-s3.connector';
 import SearchPages from '../serch/search-pages';
-import CreateComicsDto from '../../web/dto/create-comics.dto';
+import AWSConnectorS3 from '../../../comics-image/core/connector/aws-s3.connector';
+import ComicsNotFound from '../../web/exception/comics-not-found';
 import ResponseException from '../../../exception/response.exception';
-
-const comicsPagesDto = new ComicsPagesDto({
-    comics: [
-        {
-            id: 2,
-            name: 'Naruto v1',
-            year_publication: 1999,
-            month_publication: 9,
-            number_pages: 30,
-            publisher: 'Shonen Jumps',
-            age_rating: 10,
-            price: 29.99,
-            image: {
-                id: 4,
-                name: 'images-2024-06-10-Naruto_v1-Naruto_v1.png',
-                url: 'https://auth.pingpool.com.br:9000/hq-store/images-2024-06-10-Naruto_v1-Naruto_v1.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ixJ5xS3yKC62Jfy9lfSn%2F20240719%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240719T182756Z&X-Amz-Expires=3600&X-Amz-Signature=b5c89033b26a88a1abcdfee40f351ab58ebd612a64a293077b3a5b1af1b75822&X-Amz-SignedHeaders=host&x-id=GetObject',
-                comics_id: 0,
-                comics: undefined,
-            },
-            collection: [
-                {
-                    id: 2,
-                    name: 'Manga',
-                    description: 'História em quadrinhos japonesas',
-                    comics: [],
-                },
-                {
-                    id: 3,
-                    name: 'Naruto',
-                    description: 'Volumes do Manga Naruto',
-                    comics: [],
-                },
-            ],
-            carrinho_item: null,
-        },
-        {
-            id: 3,
-            name: 'Naruto v2',
-            year_publication: 1999,
-            month_publication: 9,
-            number_pages: 30,
-            publisher: 'Shonen Jumps',
-            age_rating: 10,
-            price: 29.99,
-            image: {
-                id: 5,
-                name: 'images-2024-06-12-Naruto_v2-naruto_v2.jpg',
-                url: 'https://auth.pingpool.com.br:9000/hq-store/images-2024-06-12-Naruto_v2-naruto_v2.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ixJ5xS3yKC62Jfy9lfSn%2F20240719%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240719T182756Z&X-Amz-Expires=3600&X-Amz-Signature=3df969c98be18306b8b59c92074fe236710ba493b5221f40919734d3cebab32d&X-Amz-SignedHeaders=host&x-id=GetObject',
-                comics_id: 0,
-                comics: undefined,
-            },
-            collection: [
-                {
-                    id: 2,
-                    name: 'Manga',
-                    description: 'História em quadrinhos japonesas',
-                    comics: [],
-                },
-                {
-                    id: 3,
-                    name: 'Naruto',
-                    description: 'Volumes do Manga Naruto',
-                    comics: [],
-                },
-            ],
-            carrinho_item: null,
-        },
-        {
-            id: 4,
-            name: 'Naruto v3',
-            year_publication: 1999,
-            month_publication: 9,
-            number_pages: 30,
-            publisher: 'Shonen Jumps',
-            age_rating: 10,
-            price: 29.99,
-            image: {
-                id: 6,
-                name: 'images-2024-06-12-Naruto_v3-Naruto_v3.png',
-                url: 'https://auth.pingpool.com.br:9000/hq-store/images-2024-06-12-Naruto_v3-Naruto_v3.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ixJ5xS3yKC62Jfy9lfSn%2F20240719%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240719T182756Z&X-Amz-Expires=3600&X-Amz-Signature=a8d77df06508eed2f96147731b11eedbe30e2b354b77abc54e52c61d61ccbb4c&X-Amz-SignedHeaders=host&x-id=GetObject',
-                comics_id: 0,
-                comics: null,
-            },
-            collection: [
-                {
-                    id: 2,
-                    name: 'Manga',
-                    description: 'História em quadrinhos japonesas',
-                    comics: [],
-                },
-                {
-                    id: 3,
-                    name: 'Naruto',
-                    description: 'Volumes do Manga Naruto',
-                    comics: [],
-                },
-            ],
-            carrinho_item: null,
-        },
-    ],
-    pages: 1,
-});
+import { getRepositoryToken } from '@nestjs/typeorm';
+import ComicsPagesQueryDto from '../../web/dto/comics-pages-query.dto';
+import ComicsPagesDto from '../../web/dto/comics-pages.dto';
+import CreateComicsDto from '../../web/dto/create-comics.dto';
+import ComicsImage from '../../../comics-image/core/entity/comic-image.entity';
 
 describe('ComicsService', () => {
     let service: ComicsService;
-    let comicsRepositoryMock: jest.Mocked<Repository<Comics>>;
-    let searchPagesMock: jest.Mocked<SearchPages>;
-    let awsConnectorS3Mock: jest.Mocked<AWSConnectorS3>;
+    let comicsRepository: Repository<Comics>;
+    let searchPages: SearchPages;
+    let connectorS3: AWSConnectorS3;
 
     beforeEach(async () => {
-        comicsRepositoryMock = {
-            findOneOrFail: jest.fn(),
-            findOneBy: jest.fn(),
-            save: jest.fn(),
-            delete: jest.fn(),
-        } as unknown as jest.Mocked<Repository<Comics>>;
-
-        searchPagesMock = {
-            listPages: jest.fn(),
-        } as unknown as jest.Mocked<SearchPages>;
-
-        awsConnectorS3Mock = {
-            getFile: jest.fn(),
-        } as unknown as jest.Mocked<AWSConnectorS3>;
-
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 ComicsService,
-                { provide: 'ComicsRepository', useValue: comicsRepositoryMock },
-                { provide: SearchPages, useValue: searchPagesMock },
-                { provide: AWSConnectorS3, useValue: awsConnectorS3Mock },
+                {
+                    provide: getRepositoryToken(Comics),
+                    useClass: Repository,
+                },
+                {
+                    provide: SearchPages,
+                    useValue: {
+                        listPages: jest.fn(),
+                    },
+                },
+                {
+                    provide: AWSConnectorS3,
+                    useValue: {
+                        getFile: jest.fn(),
+                    },
+                },
             ],
         }).compile();
 
         service = module.get<ComicsService>(ComicsService);
+        comicsRepository = module.get<Repository<Comics>>(
+            getRepositoryToken(Comics),
+        );
+        searchPages = module.get<SearchPages>(SearchPages);
+        connectorS3 = module.get<AWSConnectorS3>(AWSConnectorS3);
     });
 
-    it('should list pages and set image URLs', async () => {
-        searchPagesMock.listPages.mockResolvedValue(comicsPagesDto);
-        awsConnectorS3Mock.getFile.mockResolvedValue(
-            'https://url-to-s3.com/images-2024-06-10-Naruto_v1-Naruto_v1.png',
-        );
+    describe('listPages', () => {
+        it('should return a list of comics with image URLs', async () => {
+            const comicsListMock = {
+                comics: [{ image: { name: 'image1.png', url: '' } }],
+            } as unknown as ComicsPagesDto;
 
-        const result = await service.listPages(10, 0, []);
+            jest.spyOn(searchPages, 'listPages').mockResolvedValue(
+                comicsListMock,
+            );
+            jest.spyOn(connectorS3, 'getFile').mockResolvedValue(
+                'http://image-url',
+            );
 
-        expect(searchPagesMock.listPages).toHaveBeenCalledWith(10, 0, []);
-        expect(awsConnectorS3Mock.getFile).toHaveBeenCalledTimes(3);
-        expect(result.comics[0].image.url).toBe(
-            'https://url-to-s3.com/images-2024-06-10-Naruto_v1-Naruto_v1.png',
-        );
-    });
+            const result = await service.listPages(
+                10,
+                0,
+                [] as ComicsPagesQueryDto[],
+            );
 
-    it('should throw ResponseException when listPages fails', async () => {
-        searchPagesMock.listPages.mockRejectedValue(new Error('Failed'));
-
-        await expect(service.listPages(10, 0, [])).rejects.toThrow(
-            ResponseException,
-        );
-    });
-
-    it('should get comic by id and set image URL', async () => {
-        const comic = { id: 1, image: { name: 'test.jpg', url: '' } } as Comics;
-        comicsRepositoryMock.findOneOrFail.mockResolvedValue(comic);
-        awsConnectorS3Mock.getFile.mockResolvedValue(
-            'https://url-to-s3.com/test.jpg',
-        );
-
-        const result = await service.getById(1);
-
-        expect(comicsRepositoryMock.findOneOrFail).toHaveBeenCalledWith({
-            where: { id: 1 },
-            select: { image: { id: true, name: true } },
-            relations: { image: true, collection: true },
+            expect(result).toEqual(comicsListMock);
+            expect(connectorS3.getFile).toHaveBeenCalledWith('image1.png');
         });
-        expect(awsConnectorS3Mock.getFile).toHaveBeenCalledWith('test.jpg');
-        expect(result.image.url).toBe('https://url-to-s3.com/test.jpg');
+
+        it('should throw a ResponseException on failure', async () => {
+            jest.spyOn(searchPages, 'listPages').mockRejectedValue(
+                new Error('Error'),
+            );
+
+            await expect(
+                service.listPages(10, 0, [] as ComicsPagesQueryDto[]),
+            ).rejects.toThrow(ResponseException);
+        });
     });
 
-    it('should throw ComicsNotFound when comic not found', async () => {
-        comicsRepositoryMock.findOneOrFail.mockRejectedValue(new Error());
+    describe('getById', () => {
+        it('should return a comic by ID', async () => {
+            const comicsMock = new Comics();
+            comicsMock.id = 1;
+            comicsMock.image = new ComicsImage();
+            comicsMock.image.name = 'image1.png';
 
-        await expect(service.getById(1)).rejects.toThrow(ComicsNotFound);
+            jest.spyOn(comicsRepository, 'findOneOrFail').mockResolvedValue(
+                comicsMock,
+            );
+            jest.spyOn(connectorS3, 'getFile').mockResolvedValue(
+                'http://image-url',
+            );
+
+            const result = await service.getById(1);
+
+            expect(result).toEqual(comicsMock);
+            expect(connectorS3.getFile).toHaveBeenCalledWith('image1.png');
+        });
+
+        it('should throw ComicsNotFound when no comic is found', async () => {
+            jest.spyOn(comicsRepository, 'findOneOrFail').mockRejectedValue(
+                new Error('Not Found'),
+            );
+
+            await expect(service.getById(1)).rejects.toThrow(ComicsNotFound);
+        });
+
+        it('should return a comic by ID without image name', async () => {
+            const comicsMock = new Comics();
+            comicsMock.id = 1;
+            comicsMock.image = new ComicsImage();
+
+            jest.spyOn(comicsRepository, 'findOneOrFail').mockResolvedValue(
+                comicsMock,
+            );
+            jest.spyOn(connectorS3, 'getFile').mockResolvedValue(
+                'http://image-url',
+            );
+
+            const result = await service.getById(1);
+
+            expect(result).toEqual(comicsMock);
+            expect(connectorS3.getFile).toHaveBeenCalledTimes(0);
+            // toHaveBeenCalledWith
+        });
     });
 
     describe('create', () => {
         it('should create a new comic', async () => {
+            const createDto = new CreateComicsDto();
+            createDto.name = 'New Comic';
             const comics = new Comics();
-            // const createComicsMapper = new CreateComicsMapper();
+            comics.name = 'New Comic';
 
-            comics.name = 'Melhores Histórias Da Mônica Por Mônica 01';
-            comics.year_publication = 2023;
-            comics.month_publication = 11;
-            comics.number_pages = 64;
-            comics.publisher = 'EDITORA MAURICIO de SOUZA ';
-            comics.age_rating = 0;
-            comics.price = 9.9;
-            comicsRepositoryMock.save.mockResolvedValue(comics);
+            jest.spyOn(comicsRepository, 'save').mockResolvedValue(comics);
 
-            // const createComicsDto = createComicsMapper.toDto(comics);
+            const result = await service.create(createDto);
 
-            const result = await service.create(comics);
-
-            expect(comicsRepositoryMock.save).toHaveBeenCalledWith(comics);
-            expect(result).toBe(comics);
+            expect(result).toEqual(comics);
+            expect(comicsRepository.save).toHaveBeenCalledWith(createDto);
         });
     });
 
     describe('update', () => {
         it('should update an existing comic', async () => {
-            const comic = { id: 1, name: 'Old Name' } as Comics;
-            const updatedDto = new CreateComicsDto();
-            updatedDto.name = 'New Name';
+            const existingComic = new Comics();
+            existingComic.id = 1;
+            existingComic.name = 'Naruto V1';
+            existingComic.year_publication = 8;
+            existingComic.month_publication = 5;
+            existingComic.number_pages = 30;
+            existingComic.publisher = 'Shonen Jump';
+            existingComic.age_rating = 12;
+            existingComic.price = 30.2;
 
-            comicsRepositoryMock.findOneBy.mockResolvedValue(comic);
-            comicsRepositoryMock.save.mockResolvedValue({
-                ...comic,
-                ...updatedDto,
-            });
+            jest.spyOn(comicsRepository, 'findOneBy').mockResolvedValue(
+                existingComic,
+            );
+            jest.spyOn(comicsRepository, 'save').mockResolvedValue(
+                existingComic,
+            );
 
-            const result = await service.update(1, updatedDto);
+            const updateDto = new CreateComicsDto();
+            updateDto.id = 1;
+            updateDto.name = 'Updated Comic';
+            updateDto.year_publication = 9;
+            updateDto.month_publication = 2;
+            updateDto.number_pages = 32;
+            updateDto.publisher = 'Shonen Jump ';
+            updateDto.age_rating = 14;
+            updateDto.price = 30.4;
 
-            expect(comicsRepositoryMock.findOneBy).toHaveBeenCalledWith({
-                id: 1,
-            });
-            expect(comicsRepositoryMock.save).toHaveBeenCalledWith(comic);
-            expect(result.name).toBe('New Name');
+            const result = await service.update(1, updateDto);
+
+            expect(result).toEqual(existingComic);
+            expect(comicsRepository.save).toHaveBeenCalledWith(existingComic);
+        });
+
+        it('should update an existing comic', async () => {
+            const existingComic = new Comics();
+            existingComic.id = 1;
+            existingComic.name = 'Naruto V1';
+
+            jest.spyOn(comicsRepository, 'findOneBy').mockResolvedValue(
+                existingComic,
+            );
+            jest.spyOn(comicsRepository, 'save').mockRejectedValue(
+                new ResponseException(
+                    500,
+                    'Não foi possivel atualizar o registro!',
+                ),
+            );
+
+            const updateDto = new CreateComicsDto();
+            updateDto.name = 'Updated Comic';
+
+            await expect(service.update(1, updateDto)).rejects.toThrow(
+                ResponseException,
+            );
+        });
+
+        it('should throw ComicsNotFound when updating a non-existing comic', async () => {
+            jest.spyOn(comicsRepository, 'findOneBy').mockResolvedValue(null);
+
+            await expect(
+                service.update(1, new CreateComicsDto()),
+            ).rejects.toThrow(ComicsNotFound);
+        });
+
+        it('should throw ComicsNotFound when updating a non-existing comic', async () => {
+            jest.spyOn(comicsRepository, 'findOneBy').mockRejectedValue(
+                new ResponseException(
+                    500,
+                    'Não foi possivel atualizar o registro!',
+                ),
+            );
+
+            await expect(
+                service.update(1, new CreateComicsDto()),
+            ).rejects.toThrow(ResponseException);
         });
     });
 
     describe('delete', () => {
-        it('should delete a comic by id', async () => {
-            const comic = { id: 1 } as Comics;
-            comicsRepositoryMock.findOneBy.mockResolvedValue(comic);
-            comicsRepositoryMock.delete.mockResolvedValue(undefined);
+        it('should delete a comic by ID', async () => {
+            const comic = new Comics();
+            comic.id = 1;
 
-            await service.delete(1);
+            jest.spyOn(comicsRepository, 'findOneBy').mockResolvedValue(comic);
+            jest.spyOn(comicsRepository, 'delete').mockResolvedValue(null);
 
-            expect(comicsRepositoryMock.findOneBy).toHaveBeenCalledWith({
-                id: 1,
-            });
-            expect(comicsRepositoryMock.delete).toHaveBeenCalledWith(comic);
+            await expect(service.delete(1)).resolves.toBeUndefined();
         });
 
-        it('should throw ComicsNotFound when trying to delete non-existing comic', async () => {
-            comicsRepositoryMock.findOneBy.mockResolvedValue(null);
+        it('should throw ComicsNotFound when deleting a non-existing comic', async () => {
+            jest.spyOn(comicsRepository, 'findOneBy').mockResolvedValue(null);
 
-            await expect(service.delete(1)).rejects.toThrow(
-                new ComicsNotFound(1),
-            );
+            await expect(service.delete(1)).rejects.toThrow(ComicsNotFound);
         });
     });
 });

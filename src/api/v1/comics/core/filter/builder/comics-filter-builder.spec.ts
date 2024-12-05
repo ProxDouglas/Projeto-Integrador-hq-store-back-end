@@ -85,6 +85,17 @@ describe('ComicsFilterBuilder', () => {
 
     it('should call orWhere with correct parameters', () => {
         const comicsFilterBuilder = new ComicsFilterBuilder(dataSourceMock);
+        comicsFilterBuilder.orWhere('hq.year_publication = :date', {
+            date: 2019,
+        });
+        expect(queryBuilderMock.orWhere).toHaveBeenCalledWith(
+            'hq.year_publication = :date',
+            { date: 2019 },
+        );
+    });
+
+    it('should call orWhere with correct parameters', () => {
+        const comicsFilterBuilder = new ComicsFilterBuilder(dataSourceMock);
         comicsFilterBuilder.andWhere('hq.year_publication = :date_ini', {
             date_ini: 2019,
         });
