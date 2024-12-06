@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import Fornecedor from '../entity/fornecedor.entity';
 import FornecedorDto from '../../web/dto/fornecedor.dto';
 import FornecedorNotFound from '../../web/exception/fornecedor-not-found';
+import ResponseException from '../../../exception/response.exception';
 
 @Injectable()
 export default class FornecedorService {
@@ -34,7 +35,7 @@ export default class FornecedorService {
         fornecedorDto: FornecedorDto,
     ): Promise<FornecedorDto> {
         return await this.fornecedorRepository
-            .findOneBy({ id })
+            .findOneByOrFail({ id })
             .then((fornecedor) => {
                 if (fornecedorDto.name) fornecedor.name = fornecedorDto.name;
 
@@ -48,8 +49,21 @@ export default class FornecedorService {
     }
 
     public async delete(id: number) {
-        this.fornecedorRepository
-            .findOneBy({ id })
-            .then((fornecedor) => this.fornecedorRepository.delete(fornecedor));
+        let fornecedor = null;
+        try {
+            fornecedor = await this.fornecedorRepository.findOneByOrFail({
+                id,
+            });
+        } catch (error) {
+            return Promise.reject(new FornecedorNotFound(id));
+        }
+
+        try {
+            return await this.fornecedorRepository.delete(fornecedor);
+        } catch (error) {
+            return Promise.reject(
+                new ResponseException(500, 'Não foi possivel deletar!'),
+            );
+        }
     }
 }

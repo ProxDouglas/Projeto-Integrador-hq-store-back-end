@@ -34,25 +34,6 @@ export default class CollectionService {
             });
     }
 
-    // getByComicsName(comicsName: string): Promise<Collection[]> {
-    //     return this.collectionRepository
-    //         .createQueryBuilder('collections')
-    //         .select([
-    //             'collections.id',
-    //             'collections.name',
-    //             'collections.description',
-    //         ])
-    //         .leftJoin('collections.comics', 'comics_collection', null, [
-    //             'comics_collection.id',
-    //         ])
-    //         .where('comics_collection.name ILIKE :name', {
-    //             name: '%' + comicsName + '%',
-    //         })
-    //         .distinct(true)
-    //         .limit(40)
-    //         .getMany();
-    // }
-
     create(
         collectionCreateDto: CollectionCreateDto,
     ): Promise<CollectionCreateDto> {

@@ -5,6 +5,7 @@ import FornecedorService from './fornecedor.service';
 import Fornecedor from '../entity/fornecedor.entity';
 import FornecedorDto from '../../web/dto/fornecedor.dto';
 import FornecedorNotFound from '../../web/exception/fornecedor-not-found';
+import ResponseException from '../../../exception/response.exception';
 
 describe('FornecedorService', () => {
     let service: FornecedorService;
@@ -105,9 +106,10 @@ describe('FornecedorService', () => {
             const fornecedorDto = new FornecedorDto();
             fornecedorDto.name = 'Fornecedor Atualizado';
 
-            jest.spyOn(fornecedorRepository, 'findOneBy').mockResolvedValue(
-                fornecedorMock,
-            );
+            jest.spyOn(
+                fornecedorRepository,
+                'findOneByOrFail',
+            ).mockResolvedValue(fornecedorMock);
             jest.spyOn(fornecedorRepository, 'save').mockResolvedValue(
                 fornecedorMock,
             );
@@ -121,9 +123,10 @@ describe('FornecedorService', () => {
         });
 
         it('should throw FornecedorNotFound if fornecedor is not found', async () => {
-            jest.spyOn(fornecedorRepository, 'findOneBy').mockResolvedValue(
-                null,
-            );
+            jest.spyOn(
+                fornecedorRepository,
+                'findOneByOrFail',
+            ).mockRejectedValue(new FornecedorNotFound(1));
 
             await expect(
                 service.update(1, new FornecedorDto()),
@@ -136,18 +139,22 @@ describe('FornecedorService', () => {
             const fornecedorMock = new Fornecedor();
             fornecedorMock.id = 1;
 
-            jest.spyOn(fornecedorRepository, 'findOneBy').mockResolvedValue(
-                fornecedorMock,
+            jest.spyOn(
+                fornecedorRepository,
+                'findOneByOrFail',
+            ).mockResolvedValue(fornecedorMock);
+            jest.spyOn(fornecedorRepository, 'delete').mockRejectedValue(
+                new ResponseException(500, 'Não foi possivel deletar!'),
             );
-            jest.spyOn(fornecedorRepository, 'delete').mockResolvedValue(null);
 
-            await expect(service.delete(1)).resolves.toBeUndefined();
+            await expect(service.delete(1)).rejects.toThrow(ResponseException);
         });
 
         it('should throw FornecedorNotFound if fornecedor is not found', async () => {
-            jest.spyOn(fornecedorRepository, 'findOneBy').mockResolvedValue(
-                null,
-            );
+            jest.spyOn(
+                fornecedorRepository,
+                'findOneByOrFail',
+            ).mockRejectedValue(new FornecedorNotFound(1));
 
             await expect(service.delete(1)).rejects.toThrow(FornecedorNotFound);
         });

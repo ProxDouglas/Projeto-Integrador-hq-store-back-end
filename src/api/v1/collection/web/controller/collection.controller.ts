@@ -11,10 +11,10 @@ import CollectionService from '../../core/service/collection.service';
 import Collection from '../../core/entity/collection.entity';
 import CollectionCreateDto from '../dto/collection_create.dto';
 import { ApiTags } from '@nestjs/swagger';
-import ResponseStatus from 'src/api/v1/response-status/response-status.interface';
-import ResponseStatusSave from 'src/api/v1/response-status/response-status-save';
-import ComicsAssociateDto from 'src/api/v1/comics/web/dto/comics-associate.dto';
-import ResponseStatusDefault from 'src/api/v1/response-status/response-status-default';
+import ResponseStatus from '../../../response-status/response-status.interface';
+import ResponseStatusSave from '../../../response-status/response-status-save';
+import ComicsAssociateDto from '../../../comics/web/dto/comics-associate.dto';
+import ResponseStatusDefault from '../../../response-status/response-status-default';
 
 @ApiTags('collections')
 @Controller('api/collections')
@@ -23,11 +23,6 @@ export default class CollectionController {
 
     constructor(collectionService: CollectionService) {
         this.collectionService = collectionService;
-    }
-
-    @Get('comics/:name')
-    getByComicsName(@Param('name') name: string): Promise<Collection[]> {
-        return this.collectionService.getByComicsName(name);
     }
 
     @Get(':id')
