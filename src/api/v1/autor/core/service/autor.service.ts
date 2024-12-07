@@ -41,8 +41,8 @@ export default class AutorService {
     }
 
     public async delete(id: number) {
-        this.autorRepository
-            .findOneBy({ id })
-            .then((autor) => this.autorRepository.delete(autor));
+        this.autorRepository.findOneBy({ id }).then((autor) => {
+            if (autor) this.autorRepository.delete(autor);
+        });
     }
 }

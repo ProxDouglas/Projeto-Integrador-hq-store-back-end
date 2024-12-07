@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import ComicsImageService from '../../core/service/comic-image.service';
-import ResponseStatusSave from 'src/api/v1/response-status/response-status-save';
-import ResponseStatusDefault from 'src/api/v1/response-status/response-status-default';
+import ResponseStatusSave from '../../../response-status/response-status-save';
+import ResponseStatusDefault from '../../../response-status/response-status-default';
 import ComicsImageNotFound from '../exception/comics-image-not-found';
 import { FileSizeValidationPipe } from '../Pipe/file-size.pipe';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
