@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import Apreciador from '../entity/apreciador.entity';
 import ApreciadorDto from '../../web/dto/apreciador.dto';
 import ApreciadorNotFound from '../../web/exception/apreciador-not-found';

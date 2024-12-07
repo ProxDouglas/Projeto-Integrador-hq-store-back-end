@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import Autor from '../entity/autor.entity';
 import AutorDto from '../../web/dto/autor.dto';
 import AutorNotFound from '../../web/exception/autor-not-found';

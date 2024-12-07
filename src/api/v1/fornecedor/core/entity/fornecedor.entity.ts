@@ -1,14 +1,5 @@
-import {
-    Column,
-    Entity,
-    JoinColumn,
-    JoinTable,
-    ManyToMany,
-    ManyToOne,
-    OneToMany,
-    PrimaryGeneratedColumn,
-} from 'typeorm';
-import { IsInt, Min, Max, Length, IsNotEmpty, IsNumber } from 'class-validator';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Length, IsNotEmpty } from 'class-validator';
 
 @Entity({ name: 'fornecedor' })
 export default class Fornecedor {
@@ -29,5 +20,4 @@ export default class Fornecedor {
     @IsNotEmpty()
     @Column({ name: 'pais', type: 'varchar', nullable: false })
     pais: string;
-
 }

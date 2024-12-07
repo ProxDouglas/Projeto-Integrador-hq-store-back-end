@@ -6,7 +6,6 @@ import {
     ManyToOne,
     PrimaryColumn,
 } from 'typeorm';
-// import { Length, IsNotEmpty, isInt } from 'class-validator';
 import Comics from '../../../comics/core/entity/comics.entity';
 import Carrinho from '../../../carrinho/core/entity/carrinho.entity';
 

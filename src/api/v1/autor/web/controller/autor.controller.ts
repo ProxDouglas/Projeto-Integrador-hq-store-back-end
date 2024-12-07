@@ -7,7 +7,6 @@ import {
     Body,
     Param,
     ParseIntPipe,
-    Query,
 } from '@nestjs/common';
 import AutorService from '../../core/service/autor.service';
 import AutorDto from '../dto/autor.dto';

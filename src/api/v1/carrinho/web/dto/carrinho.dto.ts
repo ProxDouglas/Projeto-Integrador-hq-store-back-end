@@ -1,14 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import CarrinhoItem from '../../core/entity/carrinho-item.entity';
-import {
-    IsInt,
-    Min,
-    Max,
-    Length,
-    IsNotEmpty,
-    IsNumber,
-    IsPositive,
-} from 'class-validator';
 
 export default class CarrinhoDto {
     @ApiProperty()

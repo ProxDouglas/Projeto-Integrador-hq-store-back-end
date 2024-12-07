@@ -7,13 +7,11 @@ import {
     Body,
     Param,
     ParseIntPipe,
-    Query,
 } from '@nestjs/common';
 import ComicsService from '../../core/service/comics.service';
 import Comics from '../../core/entity/comics.entity';
 import ComicsPagesDto from '../dto/comics-pages.dto';
 import ComicsPagesQueryDto from '../dto/comics-pages-query.dto';
-import { ComicsPagesQueryValidationPipe } from '../Pipe/comics-pages-query-pipe';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import CreateComicsDto from '../dto/create-comics.dto';
 

@@ -1,4 +1,4 @@
-import { IsInt, Min, Max, Length, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 
 export default class CreateComicsImageDto {
     id: number;

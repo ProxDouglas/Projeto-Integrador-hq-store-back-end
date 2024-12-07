@@ -4,12 +4,9 @@ import Carrinho from '../entity/carrinho.entity';
 import CarrinhoDto from '../../web/dto/carrinho.dto';
 import { DataSource, Repository } from 'typeorm';
 import CarrinhoItem from '../entity/carrinho-item.entity';
-// import CarrinhoCreateDto from '../../web/dto/carrinho_create.dto';
-// import CarrinhoUpdateDto from '../../web/dto/carrinho_update.dto';
 import CarrinhoNotFound from '../../web/exception/carrinho-not-found';
 import CarrinhoItemNotFound from '../../web/exception/carrinho-item-not-found';
 import CarrinhoItemDto from '../../web/dto/carrinho-item.dto';
-import Apreciador from 'src/api/v1/apreciador/core/entity/apreciador.entity';
 
 @Injectable()
 export default class CarrinhoService {

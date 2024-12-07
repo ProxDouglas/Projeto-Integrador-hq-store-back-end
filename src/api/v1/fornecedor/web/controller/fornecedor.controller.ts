@@ -7,7 +7,6 @@ import {
     Body,
     Param,
     ParseIntPipe,
-    Query,
 } from '@nestjs/common';
 import FornecedorService from '../../core/service/fornecedor.service';
 import FornecedorDto from '../dto/fornecedor.dto';

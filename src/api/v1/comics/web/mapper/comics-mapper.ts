@@ -13,7 +13,6 @@ export default class ComicsMapper {
         comicsDto.number_pages = comics.number_pages;
         comicsDto.price = comics.price;
         comicsDto.publisher = comics.publisher;
-        // comicsDto.image = comics.image;
 
         return comicsDto;
     }
@@ -29,7 +28,6 @@ export default class ComicsMapper {
         comics.number_pages = comicsDto.number_pages;
         comics.price = comicsDto.price;
         comics.publisher = comicsDto.publisher;
-        // comics.image = comicsDto.image;
 
         return comics;
     }

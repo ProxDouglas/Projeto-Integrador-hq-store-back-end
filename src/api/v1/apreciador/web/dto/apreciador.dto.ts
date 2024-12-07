@@ -1,13 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-    IsInt,
-    Min,
-    Max,
-    Length,
-    IsNotEmpty,
-    IsNumber,
-    IsPositive,
-} from 'class-validator';
+import { Length, IsNotEmpty } from 'class-validator';
 
 export default class ApreciadorDto {
     @ApiProperty()

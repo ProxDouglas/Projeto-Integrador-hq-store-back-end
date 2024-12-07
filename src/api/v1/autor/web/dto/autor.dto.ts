@@ -1,13 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-    IsInt,
-    Min,
-    Max,
-    Length,
-    IsNotEmpty,
-    IsNumber,
-    IsPositive,
-} from 'class-validator';
+import { Length, IsNotEmpty } from 'class-validator';
 
 export default class AutorDto {
     @ApiProperty()
@@ -17,5 +9,4 @@ export default class AutorDto {
     @Length(2, 255)
     @IsNotEmpty()
     nome: string;
-
 }

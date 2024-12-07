@@ -1,13 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-    IsInt,
-    Min,
-    Max,
-    Length,
-    IsNotEmpty,
-    IsNumber,
-    IsPositive,
-} from 'class-validator';
+import { Length, IsNotEmpty } from 'class-validator';
 
 export default class FornecedorDto {
     @ApiProperty()
@@ -27,5 +19,4 @@ export default class FornecedorDto {
     @Length(2, 255)
     @IsNotEmpty()
     pais: string;
-
 }
